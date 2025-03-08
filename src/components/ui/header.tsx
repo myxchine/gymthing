@@ -6,10 +6,10 @@ import { toast } from "sonner";
 export default function Header() {
   return (
     <header className="max-w-xl mx-auto p-4 flex flex-row items-center justify-between sticky top-0 z-10 bg-white">
-      <MenuIcon
-        className="w-6 h-6 cursor-pointer"
-        onClick={() => toast.success("Menu feature coming soon")}
-      />
+      <Link href="/workout">
+        <MenuIcon className="w-6 h-6 cursor-pointer" />
+      </Link>
+
       <Link href="/" className="font-bold tracking-[0.5rem] text-xl">
         GYMTHING
       </Link>

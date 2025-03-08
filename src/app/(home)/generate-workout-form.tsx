@@ -94,11 +94,10 @@ export default function PersonalWorkoutRoutineForm() {
       {!isPending && !message && (
         <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2">
           <h1 className="text-3xl font-semibold tracking-tight">
-            Free Personal Trainer
+            Workout Generator
           </h1>
           <p className="text-black/60 text-sm">
-            Simply enter what you want and receive a professional workout for
-            you.
+            Simply enter what you're thinking and receive your custom workout!
             <strong> Don't like it? Regenerate it! </strong>
           </p>
 
