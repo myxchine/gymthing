@@ -1,24 +1,56 @@
 @import "tailwindcss";
-
 @theme {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter-sans);
 }
-
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000;
+  --accent: #ff0000;
+  --site-width: 40rem;
+  --header-height: 64px;
+  --footer-height: 64px;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  text-wrap: balance;
+}
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  line-height: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+button {
+  @apply cursor-pointer;
+}
+.button-black {
+  @apply bg-black text-white px-4 py-2 rounded-lg border border-black hover:bg-black/80;
+}
+.heading1 {
+  @apply text-2xl font-bold uppercase;
+}
+.heading2 {
+  @apply text-xl font-bold uppercase;
+}
+.heading3 {
+  @apply text-lg font-bold uppercase;
+}
+
+.personal-workout-routine-form label {
+  @apply w-full;
+}
+.personal-workout-routine-form select {
+  @apply px-3 py-2  w-full rounded-xl bg-black/5 mb-4;
 }
