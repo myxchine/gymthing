@@ -1,44 +1,49 @@
+import Image from "next/image";
+import { getMuscleGroup } from "@/server/generate-workout";
+
 export default function ExerciseCard({
   exercise,
 }: {
   exercise: GeneratedExercise;
 }) {
+  const muscleGroup = getMuscleGroup(exercise.id);
   return (
     <div className="flex flex-row w-full gap-2">
       <div className=" mt-5 h-[2px] w-6 bg-black" />
 
-      <div className=" flex flex-col gap-2 w-full ">
+      <div className=" flex flex-col gap-2 w-full  max-w-sm">
         <div className="flex flex-col w-full p-2 gap-3 ">
           <h2 className="font-semibold text-xl">{exercise.name}</h2>
           <ExerciseMuscleGroups muscleGroups={exercise.muscleGroups} />
           <p className="text-black/60 text-sm">{exercise.description}</p>
-        </div>
-        <div className=" p-6 rounded-2xl bg-black/5 flex flex-col gap-4 w-full">
-          <p className="w-full bg-black/5 rounded-2xl px-4 py-3">3 sets of</p>
-          {exercise.hasDuration ? (
-            <p className="w-full bg-black/5 rounded-2xl px-4 py-3">
-              5 minutes (or to failure)
-            </p>
-          ) : exercise.compound ? (
-            <p className="w-full bg-black/5 rounded-xl px-4 py-3">
-              8 - 12 reps{" "}
-            </p>
-          ) : (
-            <p className="w-full bg-black/5 rounded-xl px-4 py-3">
-              10 - 14 reps
-            </p>
-          )}
-
-          <p className="w-full bg-black/5 rounded-xl px-4 py-3">
-            rest for atleast 2 minutes between sets
+          <p className="text-lg font-semibold">
+            3 sets of{" "}
+            {exercise.hasDuration
+              ? "5 minutes (or to failure)"
+              : exercise.compound
+              ? "8 - 12 reps"
+              : "10 - 14 reps"}
           </p>
+          <p className="text-xs">rest for atleast 2 minutes between sets</p>
+        </div>
 
-          {!exercise.bodyweight && (
-            <p className="text-xs ">
-              Pick a weight that takes you to failure on each set
-            </p>
+        <div className="w-full flex flex-col items-center justify-center ">
+          {muscleGroup !== "cardio" && (
+            <Image
+              src={`/images/${muscleGroup}.jpg`}
+              alt={exercise.name}
+              width={200}
+              height={200}
+              priority
+              className="mx-auto"
+            />
           )}
         </div>
+        {!exercise.bodyweight && (
+          <p className="text-xs w-full text-center max-w-[200px] mx-auto">
+            Pick a weight that takes you to failure on each set
+          </p>
+        )}
       </div>
     </div>
   );

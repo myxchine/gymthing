@@ -50,7 +50,7 @@ export const workouts = createTable(
     userId: varchar("user_id", { length: 255 }).references(() => users.id, {
       onDelete: "cascade",
     }),
-    workoutJson: jsonb("json").$type<GeneratedWorkout>().notNull(),
+    workoutJson: jsonb("json").$type<DatabaseStoredGeneratedWorkout>().notNull(),
 
     createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)

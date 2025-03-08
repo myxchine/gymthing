@@ -42,19 +42,15 @@ export async function getworkoutById(
   }
 }
 
-export async function getworkouts(): Promise<workoutWithuserName[]> {
+export async function getworkouts(): Promise<workout[]> {
   try {
     const res = await db
       .select()
       .from(workouts)
-      .innerJoin(users, eq(workouts.userId, users.id))
       .orderBy(desc(workouts.createdAt))
       .limit(60);
     if (!res) throw new Error("No workouts found");
-    return res.map((object) => ({
-      ...object.workout,
-      userName: object.user.name,
-    }));
+    return res;
   } catch (error) {
     console.error("Error fetching workouts:", error);
     return [];

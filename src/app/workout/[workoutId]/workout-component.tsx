@@ -5,6 +5,7 @@ import { useState } from "react";
 import { generateUserWorkout } from "@/server/generate-workout/utils";
 import { Loading } from "@/components/loading";
 import { useRouter } from "next/navigation";
+import { RegenerateIcon } from "@/components/ui/icons";
 
 export default function WorkoutComponent({
   workout,
@@ -57,7 +58,7 @@ export default function WorkoutComponent({
   const mainWokrout = sortExercises(workout.main);
 
   return (
-    <div className="max-w-xl mx-auto p-6 w-full flex flex-col gap-6">
+    <div className="max-w-xl mx-auto p-6 w-full flex flex-col gap-8">
       <div className="flex flex-col gap-3 w-full">
         <h1 className="text-3xl font-semibold tracking-tight">
           {workout.name}
@@ -66,9 +67,9 @@ export default function WorkoutComponent({
 
         <button
           onClick={handleRegenerate}
-          className="rounded-full border px-4 py-2 hover:bg-black hover:text-white w-fit text-sm mt-1"
+          className="rounded-full border px-4 py-2 hover:bg-black hover:text-white w-fit text-sm mt-1 flex flex-row items-center gap-2"
         >
-          Regenerate
+          <RegenerateIcon className="size-4" /> Regenerate
         </button>
       </div>
       <section className="flex flex-row w-full ">
@@ -81,7 +82,6 @@ export default function WorkoutComponent({
           <div className="flex flex-row w-full gap-2 items-end">
             <div className=" mb-3 h-[2px] w-6 bg-black" />
             <h2 className="font-semibold text-xl px-2">
-              {" "}
               You finished your workout!{" "}
             </h2>
           </div>
