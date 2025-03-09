@@ -85,9 +85,9 @@ export default function PersonalWorkoutRoutineForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4  w-full flex flex-col items-centeer justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
+    <div className="max-w-xl mx-auto  w-full flex flex-col items-centeer justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
       {!isPending && !message && (
-        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2">
+        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center w-full overflow-hidden">
           <h1 className="text-3xl font-semibold tracking-tight">
             Workout Generator
           </h1>
@@ -104,7 +104,7 @@ export default function PersonalWorkoutRoutineForm() {
               "I want to train upperbody",
               "I want to build overall strength",
             ]}
-            speed={25}
+            speed={40}
           />
           <MarqueePrompts
             prompts={[
@@ -114,7 +114,7 @@ export default function PersonalWorkoutRoutineForm() {
               "I want to target my triceps",
               "I want to feel stronger",
             ]}
-            speed={50}
+            speed={70}
             direction="right"
           />
         </div>
@@ -128,7 +128,7 @@ export default function PersonalWorkoutRoutineForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full"
+        className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full p-4"
       >
         <label htmlFor="fitness-goal" className="hidden">
           I want to
