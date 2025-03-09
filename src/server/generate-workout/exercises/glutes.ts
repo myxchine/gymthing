@@ -25,6 +25,7 @@ export const gluteExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: true,
+    
   },
   {
     id: "deadlift",

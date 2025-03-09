@@ -1,4 +1,3 @@
-
 export const hamstringExercises: Exercise[] = [
   {
     id: "squat",
@@ -9,7 +8,7 @@ export const hamstringExercises: Exercise[] = [
     difficulty: "beginner",
     equipment: ["barbell", "dumbbells", "bodyweight"],
     can_train_at_home: true,
-    bodyweight: true,
+    bodyweight: false,
     compound: true,
     unilateral: false,
   },
@@ -27,7 +26,6 @@ export const hamstringExercises: Exercise[] = [
     compound: true,
     unilateral: false,
   },
-  
 
   {
     id: "hamstring-curl",
@@ -41,8 +39,9 @@ export const hamstringExercises: Exercise[] = [
     bodyweight: false,
     compound: false,
     unilateral: false,
+    image : "hamstrings.jpg",
   },
- 
+
   {
     id: "bulgarian-split-squat",
     name: "Bulgarian Split Squat",

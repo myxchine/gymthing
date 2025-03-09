@@ -49,6 +49,7 @@ interface Exercise {
   compound: boolean;
   unilateral: boolean;
   hasDuration?: boolean;
+  image?: string;
 }
 
 interface Workouts {

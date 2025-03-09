@@ -50,6 +50,7 @@ export const shoulderExercises: Exercise[] = [
     bodyweight: false,
     compound: false,
     unilateral: false,
+    image: "rear-delts.jpg",
   },
   {
     id: "arnold-press",

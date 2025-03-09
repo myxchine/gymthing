@@ -1,4 +1,3 @@
-
 export const calfExercises: Exercise[] = [
   {
     id: "calf-raise",
@@ -12,6 +11,7 @@ export const calfExercises: Exercise[] = [
     bodyweight: true,
     compound: false,
     unilateral: false,
+    image: "calves.jpg",
   },
   {
     id: "step-up",
@@ -25,5 +25,6 @@ export const calfExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: true,
+    image: "calves.jpg",
   },
 ];

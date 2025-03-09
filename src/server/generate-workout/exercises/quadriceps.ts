@@ -8,7 +8,7 @@ export const quadricepExercises: Exercise[] = [
     difficulty: "beginner",
     equipment: ["barbell", "dumbbells", "bodyweight"],
     can_train_at_home: true,
-    bodyweight: true,
+    bodyweight: false,
     compound: true,
     unilateral: false,
   },

@@ -1,0 +1,3245 @@
+Directory structure:
+└── personalise-workout-routines/
+    ├── README.md
+    ├── drizzle.config.ts
+    ├── next-env.d.ts
+    ├── next.config.ts
+    ├── package.json
+    ├── pnpm-lock.yaml
+    ├── postcss.config.mjs
+    ├── tsconfig.json
+    ├── public/
+    │   └── images/
+    └── src/
+        ├── app/
+        │   ├── globals.css
+        │   ├── layout.tsx
+        │   ├── not-found.tsx
+        │   ├── types.ts
+        │   ├── (home)/
+        │   │   ├── generate-workout-form.tsx
+        │   │   ├── page.tsx
+        │   │   └── rolling-prompts.tsx
+        │   └── workout/
+        │       ├── page.tsx
+        │       └── [workoutId]/
+        │           ├── page.tsx
+        │           └── workout-component.tsx
+        ├── components/
+        │   ├── exercise-card.tsx
+        │   ├── loading.tsx
+        │   └── ui/
+        │       ├── header.tsx
+        │       └── icons.tsx
+        └── server/
+            ├── db/
+            │   ├── index.ts
+            │   ├── schema.ts
+            │   └── utils.ts
+            └── generate-workout/
+                ├── index.ts
+                ├── exercises/
+                │   ├── abs.ts
+                │   ├── back.ts
+                │   ├── biceps.ts
+                │   ├── calves.ts
+                │   ├── cardio.ts
+                │   ├── chest.ts
+                │   ├── forearms.ts
+                │   ├── glutes.ts
+                │   ├── hamstrings.ts
+                │   ├── index.ts
+                │   ├── quadriceps.ts
+                │   ├── shoulders.ts
+                │   └── triceps.ts
+                └── utils/
+                    ├── ai.ts
+                    ├── generatePrompt.ts
+                    ├── generationConfig.ts
+                    └── index.ts
+
+
+================================================
+File: src/app/globals.css
+================================================
+@import "tailwindcss";
+@theme {
+  --font-sans: var(--font-inter-sans);
+}
+:root {
+  --background: #ffffff;
+  --foreground: #000;
+  --accent: #ff0000;
+  --site-width: 40rem;
+  --header-height: 64px;
+  --footer-height: 64px;
+}
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  text-wrap: balance;
+}
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  line-height: inherit;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+button {
+  @apply cursor-pointer;
+}
+.button-black {
+  @apply bg-black text-white px-4 py-2 rounded-lg border border-black hover:bg-black/80;
+}
+.heading1 {
+  @apply text-2xl font-bold uppercase;
+}
+.heading2 {
+  @apply text-xl font-bold uppercase;
+}
+.heading3 {
+  @apply text-lg font-bold uppercase;
+}
+
+.personal-workout-routine-form label {
+  @apply w-full;
+}
+.personal-workout-routine-form select {
+  @apply px-3 py-2  w-full rounded-xl bg-black/5 mb-4;
+}
+
+
+================================================
+File: src/app/layout.tsx
+================================================
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Metadata } from "next";
+import { Toaster } from "sonner";
+import Header from "@/components/ui/header";
+const interSans = Inter({
+  variable: "--font-inter-sans",
+  subsets: ["latin"],
+});
+export const metadata: Metadata = {
+  title: {
+    default: "GymThing",
+    template: "%s - GymThing",
+  },
+  description: "Your very own free personal trainer.",
+};
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={`${interSans.variable} antialiased`}>
+        <Header />
+        <main className="flex flex-col w-full max-w-[var(--site-width)] mx-auto">
+          {children}
+        </main>
+        <footer className="max-w-xl mx-auto p-6 flex flex-row items-center justify-center text-xs text-black/80">
+          ©2025 GymThing. All rights reserved.
+        </footer>
+        <Toaster position="top-center" />
+      </body>
+    </html>
+  );
+}
+
+
+================================================
+File: src/app/not-found.tsx
+================================================
+import { redirect } from "next/navigation";
+
+export default function NotFound() {
+  return redirect("/");
+}
+
+
+================================================
+File: src/app/types.ts
+================================================
+// 45 min workout: warmup, main, cooldown
+// main: 3 sets compound exercises (15min), 3 sets accessory exercises (15min)
+// compound sets: 8-12 reps of a weight that takes you to failure, atleast 2 min rest between sets
+// accessory sets: 10-16 reps of a weight that takes you to failure, atleast 2 min rest between sets
+
+interface RoutineFormOptions {
+  fitnessGoal: FitnessGoal;
+  workoutLength: WorkoutLength;
+  place: Place;
+  query: string; // custom query by user which contains more info specidifically about what they want to train
+}
+type FitnessGoal =
+  | `Improve General Fitness & Health`
+  | `Build Strength & Muscle`
+  | `Lose Weight & Tone Body`
+  | `Improve Energy Levels & Feel Better`;
+type WorkoutLength = "15" | "30" | "45";
+type FitnessLevel =
+  | "I'm completely new"
+  | "I kinda know what I'm doing"
+  | "I know what's up";
+
+type Place = "Home" | "Gym";
+
+interface MuscleGroup {
+  importance: number;
+  exercises?: Exercise[];
+  [key: string]: any;
+}
+
+interface MuscleGroupCategory {
+  importance: number;
+  [muscleGroupName: string]: MuscleGroup | number | Exercise[];
+}
+
+interface ExercisesDatabase {
+  [key: string]: MuscleGroup;
+}
+
+interface Exercise {
+  id: string;
+  name: string;
+  description: string;
+  muscleGroups: string[];
+  difficulty: "beginner" | "intermediate";
+  equipment: string[];
+  can_train_at_home: boolean;
+  bodyweight: boolean;
+  compound: boolean;
+  unilateral: boolean;
+  hasDuration?: boolean;
+  image?: string;
+}
+
+interface Workouts {
+  shortlength: {
+    mainWorkout: Workout;
+  };
+  mediumlength: {
+    mainWorkout: Workout;
+  };
+  longlength: {
+    mainWorkout: Workout;
+  };
+}
+
+interface Workout {
+  totalexercises: number;
+  compoundexercises: number;
+  totalreps: number;
+  totalsets: number;
+  duration: number;
+}
+
+// Utility type to recursively extract keys
+type DeepKeys<T> = T extends object
+  ? {
+      [K in keyof T]-?: K extends string
+        ? T[K] extends object
+          ? K | `${K}.${DeepKeys<T[K]>}`
+          : K
+        : never;
+    }[keyof T]
+  : never;
+
+// Extract all possible focus areas
+type FocusArea = DeepKeys<ExercisesDatabase>;
+
+interface UserPreferences {
+  workoutLength: "shortlength" | "mediumlength" | "longlength";
+  goals: "strength" | "endurance" | "weight loss";
+  place: "home" | "gym";
+  focusAreas: FocusArea[];
+}
+
+interface GeneratedWorkout {
+  main: GeneratedExercise[];
+}
+
+interface DatabaseStoredGeneratedWorkout extends GeneratedWorkout {
+  name: string;
+  description: string;
+  query: string;
+  focusAreas: FocusArea[];
+  fitnessGoal: FitnessGoal;
+  fitnessLevel: FitnessLevel;
+  workoutLength: WorkoutLength;
+  place: Place;
+}
+
+interface GeneratedExercise extends Exercise {
+  sets?: number;
+  reps?: number;
+  duration?: number;
+  rest?: number;
+}
+
+
+================================================
+File: src/app/(home)/generate-workout-form.tsx
+================================================
+"use client";
+
+import { Loading } from "@/components/loading";
+import { generateUserWorkout } from "@/server/generate-workout/utils";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import RollingPrompts from "./rolling-prompts";
+
+const fitnessGoalOptions: FitnessGoal[] = [
+  `Improve General Fitness & Health`,
+  `Build Strength & Muscle`,
+  `Lose Weight & Tone Body`,
+  `Improve Energy Levels & Feel Better`,
+];
+
+const fitnessLevelOptions: FitnessLevel[] = [
+  "I'm completely new",
+  "I kinda know what I'm doing",
+  "I know what's up",
+];
+
+const workoutLengthOptions: WorkoutLength[] = ["15", "30", "45"];
+const placeOptions: Place[] = ["Gym", "Home"];
+
+export default function PersonalWorkoutRoutineForm() {
+  const [message, setMessage] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [formData, setFormData] = useState({
+    fitnessGoal: fitnessGoalOptions[1], // Default value
+    fitnessLevel: fitnessLevelOptions[1],
+    workoutLength: workoutLengthOptions[2],
+    place: placeOptions[0],
+    query: "",
+  });
+  const textareaRef = useRef<HTMLTextAreaElement>(null); // Create a ref for the textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus(); // Focus the textarea when the component mounts
+    }
+  }, []);
+
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsPending(true);
+    setMessage(null);
+
+    if (
+      !formData.fitnessGoal ||
+      !formData.fitnessLevel ||
+      !formData.workoutLength ||
+      !formData.place ||
+      !formData.query
+    ) {
+      throw new Error(
+        "Failed to create your workout routine, please try again"
+      );
+    }
+
+    try {
+      const result = await generateUserWorkout({
+        fitnessGoal: formData.fitnessGoal,
+        fitnessLevel: formData.fitnessLevel,
+        workoutLength: formData.workoutLength,
+        place: formData.place,
+        query: formData.query,
+      });
+
+      if (result.status === "success") {
+        router.push(`/workout/${result.workoutId}`);
+      }
+      if (result.status === "error") {
+        throw new Error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Client-side error:", error);
+      setMessage("An unexpected error occurred. Please try again.");
+      setIsPending(false);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  return (
+    <div className="max-w-xl mx-auto p-4 pb-0 w-full flex flex-col items-centeer justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
+      {!isPending && !message && (
+        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Workout Generator
+          </h1>
+          <p className="text-black/60 text-sm">
+            Simply enter what you're thinking and receive your custom workout!
+            <strong> Don't like it? Regenerate it! </strong>
+          </p>
+
+          <RollingPrompts
+            texts={[
+              "I want to train my legs",
+              "I'm looking to burn fat",
+              "I want to grow my arms",
+              "I want to train upperbody",
+              "I want to build overall strength",
+            ]}
+          />
+        </div>
+      )}
+      {(isPending || message) && (
+        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2">
+          {isPending && <Loading />}
+          {message && <p className="w-full text-center text-sm">{message}</p>}
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full"
+      >
+        <label htmlFor="fitness-goal" className="hidden">
+          I want to
+        </label>
+        <select
+          name="fitness-goal"
+          id="fitness-goal"
+          value={formData.fitnessGoal}
+          onChange={handleChange}
+          className="hidden"
+        >
+          {fitnessGoalOptions.map((fitnessGoal) => (
+            <option key={fitnessGoal} value={fitnessGoal}>
+              {fitnessGoal}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="fitness-level" className="hidden">
+          How deep are you into fitness
+        </label>
+        <select
+          name="fitness-level"
+          id="fitness-level"
+          value={formData.fitnessLevel}
+          onChange={handleChange}
+          className="hidden"
+        >
+          {fitnessLevelOptions.map((fitnessLevel) => (
+            <option key={fitnessLevel} value={fitnessLevel}>
+              {fitnessLevel}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="workout-length" className="hidden">
+          I want to workout for
+        </label>
+        <select
+          name="workout-length"
+          id="workout-length"
+          value={formData.workoutLength}
+          onChange={handleChange}
+          className="hidden"
+        >
+          {workoutLengthOptions.map((workoutLength) => (
+            <option key={workoutLength} value={workoutLength}>
+              {workoutLength} minutes
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="place" className="hidden">
+          I'm working out at
+        </label>
+        <select
+          name="place"
+          id="place"
+          value={formData.place}
+          onChange={handleChange}
+          className="hidden"
+        >
+          {placeOptions.map((place) => (
+            <option key={place} value={place}>
+              {place}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="query" className="hidden">
+          What do you want to train?
+        </label>
+        <textarea
+          name="query"
+          id="query"
+          ref={textareaRef}
+          placeholder="What are you looking for today?"
+          className="w-full h-fit px-4 py-4 pb-6 rounded-2xl border border-black/40 mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
+          required
+          value={formData.query}
+          onChange={handleChange}
+        />
+
+        <button
+          type="submit"
+          className={
+            isPending || formData.query === ""
+              ? "rounded-full bg-black text-white border px-6 py-2  w-full !cursor-not-allowed"
+              : "rounded-full bg-black text-white border px-6 py-2 hover:bg-white hover:text-black w-full "
+          }
+          disabled={isPending || formData.query === ""}
+        >
+          Generate
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
+================================================
+File: src/app/(home)/page.tsx
+================================================
+import PersonalWorkoutRoutineForm from "./generate-workout-form";
+
+export default function Home() {
+  return <PersonalWorkoutRoutineForm />;
+}
+
+
+================================================
+File: src/app/(home)/rolling-prompts.tsx
+================================================
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+
+export default function RollingPrompts({
+  texts,
+  interval = 3000,
+}: {
+  texts: string[];
+  interval?: number;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fade, setFade] = useState(false); // Start faded out
+  const firstRender = useRef(true);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      setTimeout(() => {
+        setFade(true); // Fade in on initial load
+        firstRender.current = false;
+      }, 100); // Small delay to allow initial render
+    }
+
+    const timer = setInterval(() => {
+      setFade(false); // Fade out
+
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % texts.length);
+        setFade(true); // Fade in
+      }, 1000); 
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [texts, interval]);
+
+  return (
+    <div
+      className="px-4 py-2 border-2 rounded-full mt-2"
+      style={{
+        transition: "opacity 1s ease-in-out",
+        opacity: fade ? 1 : 0,
+      }}
+    >
+      <span
+        className="font-semibold tracking-tighter"
+        style={{
+          transition: "opacity 1s ease-in-out",
+          opacity: fade ? 1 : 0,
+        }}
+      >
+        {texts[currentIndex]}
+      </span>
+    </div>
+  );
+}
+
+
+================================================
+File: src/app/workout/page.tsx
+================================================
+import { getworkouts } from "@/server/db/utils";
+import Link from "next/link";
+export default async function WorkoutPage() {
+  const workouts = await getworkouts();
+  return (
+    <div className="max-w-xl mx-auto p-6 w-full flex flex-col gap-6">
+      <div className="flex flex-col gap-3 w-full">
+        <h1 className="text-4xl font-semibold tracking-tight">Explore Workouts</h1>
+        <p className="text-black/60 text-sm">
+          Workouts created by you and others can be found here.
+        </p>
+      </div>
+      <div className="flex flex-col gap-8 w-full">
+        {workouts.map((workout) => (
+          <Link href={`/workout/${workout.id}`} key={workout.id} className="flex flex-col gap-2 w-full">
+            <h2 className="text-xl font-semibold tracking-tight">
+              {workout.workoutJson.name}
+            </h2>
+            <p className="text-black/60 text-sm">
+              {workout.workoutJson.description}
+            </p>
+            <span className="px-4 py-2 rounded-full text-sm mt-2 w-fit hover:bg-black hover:text-white border">
+                View workout
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+================================================
+File: src/app/workout/[workoutId]/page.tsx
+================================================
+import { getworkoutById } from "@/server/db/utils";
+import { notFound } from "next/navigation";
+import WorkoutComponent from "./workout-component";
+
+export const dynamic = "force-dynamic";
+
+export default async function WorkoutPage({
+  params,
+}: {
+  params: Promise<{ workoutId: string }>;
+}) {
+  const workoutId = (await params).workoutId;
+  const workoutData = await getworkoutById(workoutId);
+  const workout = workoutData?.workoutJson as DatabaseStoredGeneratedWorkout;
+  if (!workout) {
+    return notFound();
+  }
+  return <WorkoutComponent workout={workout} />;
+}
+
+
+
+================================================
+File: src/app/workout/[workoutId]/workout-component.tsx
+================================================
+"use client";
+
+import ExerciseCard from "@/components/exercise-card";
+import { useState } from "react";
+import { generateUserWorkout } from "@/server/generate-workout/utils";
+import { Loading } from "@/components/loading";
+import { useRouter } from "next/navigation";
+import { RegenerateIcon } from "@/components/ui/icons";
+
+export default function WorkoutComponent({
+  workout,
+}: {
+  workout: DatabaseStoredGeneratedWorkout;
+}) {
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  const handleRegenerate = async () => {
+    setIsRegenerating(true);
+    setMessage(null);
+
+    try {
+      const result = await generateUserWorkout({
+        fitnessGoal: workout.fitnessGoal,
+        fitnessLevel: workout.fitnessLevel,
+        workoutLength: workout.workoutLength,
+        place: workout.place,
+        query: workout.query,
+      });
+
+      if (result.status === "success") {
+        router.push(`/workout/${result.workoutId}`);
+      }
+      if (result.status === "error") {
+        throw new Error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Client-side error:", error);
+      setMessage("An unexpected error occurred. Please try again.");
+      setIsRegenerating(false);
+    }
+  };
+
+  if (isRegenerating) {
+    return (
+      <div className="max-w-xl mx-auto p-4 pb-0 w-full flex flex-col items-center justify-center gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
+        {message ? (
+          <p className="w-full text-center text-sm">{message}</p>
+        ) : (
+          <Loading />
+        )}
+      </div>
+    );
+  }
+
+  const mainWokrout = sortExercises(workout.main);
+
+  return (
+    <div className="max-w-xl mx-auto p-6 w-full flex flex-col gap-8">
+      <div className="flex flex-col gap-3 w-full">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {workout.name}
+        </h1>
+        <p className="text-black/60 text-sm">{workout.description}</p>
+
+        <button
+          onClick={handleRegenerate}
+          className="rounded-full border px-4 py-2 hover:bg-black hover:text-white w-fit text-sm mt-1 flex flex-row items-center gap-2"
+        >
+          <RegenerateIcon className="size-4" /> Regenerate
+        </button>
+      </div>
+      <section className="flex flex-row w-full ">
+        <div className="w-[2px] mt-5 mb-3 bg-black" />
+        <div className="flex flex-col gap-12 w-full">
+          {mainWokrout.map((exercise: GeneratedExercise, index: number) => {
+            return <ExerciseCard exercise={exercise} key={index} />;
+          })}
+
+          <div className="flex flex-row w-full gap-2 items-end">
+            <div className=" mb-3 h-[2px] w-6 bg-black" />
+            <h2 className="font-semibold text-xl px-2">
+              You finished your workout!{" "}
+            </h2>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function sortExercises(exercises: Exercise[]): Exercise[] {
+  return exercises.slice().sort((a, b) => {
+    if (a.compound && !b.compound) {
+      return -1;
+    }
+    if (!a.compound && b.compound) {
+      return 1;
+    }
+    return 0;
+  });
+}
+
+
+================================================
+File: src/components/exercise-card.tsx
+================================================
+import Image from "next/image";
+import { getMuscleGroup } from "@/server/generate-workout";
+
+export default function ExerciseCard({
+  exercise,
+}: {
+  exercise: GeneratedExercise;
+}) {
+  const muscleGroup = getMuscleGroup(exercise.id);
+  return (
+    <div className="flex flex-row w-full gap-2">
+      <div className=" mt-5 h-[2px] w-6 bg-black" />
+
+      <div className=" flex flex-col gap-2 w-full  max-w-sm">
+        <div className="flex flex-col w-full p-2 gap-3 ">
+          <h2 className="font-semibold text-xl">{exercise.name}</h2>
+          <ExerciseMuscleGroups muscleGroups={exercise.muscleGroups} />
+          <p className="text-black/60 text-sm">{exercise.description}</p>
+          <p className="text-lg font-semibold">
+            3 sets of{" "}
+            {exercise.hasDuration
+              ? "5 minutes (or to failure)"
+              : exercise.compound
+              ? "8 - 12 reps"
+              : "10 - 14 reps"}
+          </p>
+          <p className="text-xs">rest for atleast 2 minutes between sets</p>
+        </div>
+
+        <div className="w-full flex flex-col items-center justify-center ">
+          {muscleGroup !== "cardio" && (
+            <Image
+              src={`/images/${exercise.image || muscleGroup + ".jpg"}`}
+              alt={exercise.name}
+              width={200}
+              height={200}
+              priority
+              className="mx-auto"
+            />
+          )}
+        </div>
+        {!exercise.bodyweight && (
+          <p className="text-xs w-full text-center max-w-[200px] mx-auto">
+            Pick a weight that takes you to failure on each set
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ExerciseMuscleGroups({ muscleGroups }: { muscleGroups: string[] }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {muscleGroups.map((muscleGroup) => (
+        <p
+          key={muscleGroup}
+          className="px-3  capitalize py-1 rounded-full bg-black/10 text-xs text-black/60  w-fit"
+        >
+          {muscleGroup}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+
+================================================
+File: src/components/loading.tsx
+================================================
+import { SpinnerIcon } from "./ui/icons";
+
+export function Loading() {
+  return (
+    <div className="flex flex-col items-center justify-center p-8 my-12 w-full">
+      <SpinnerIcon className="size-8 animate-spin" />
+    </div>
+  );
+}
+
+
+================================================
+File: src/components/ui/header.tsx
+================================================
+"use client";
+import Link from "next/link";
+import { AccountIcon, MenuIcon } from "./icons";
+import { toast } from "sonner";
+
+export default function Header() {
+  return (
+    <header className="max-w-xl mx-auto p-4 flex flex-row items-center justify-between sticky top-0 z-10 bg-white">
+      <Link href="/workout">
+        <MenuIcon className="w-6 h-6 cursor-pointer" />
+      </Link>
+
+      <Link href="/" className="font-bold tracking-[0.5rem] text-xl">
+        GYMTHING
+      </Link>
+      <AccountIcon
+        className="w-6 h-6 cursor-pointer"
+        onClick={() => toast.success("Account feature coming soon")}
+      />
+    </header>
+  );
+}
+
+
+================================================
+File: src/components/ui/icons.tsx
+================================================
+export function GoogleIcon(props: any) {
+  return (
+    <svg
+      width="800px"
+      height="800px"
+      viewBox="-3 0 262 262"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMidYMid"
+      {...props}
+    >
+      <path
+        d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
+        fill="#4285F4"
+      />
+      <path
+        d="M130.55 261.1c35.248 0 64.839-11.605 86.453-31.622l-41.196-31.913c-11.024 7.688-25.82 13.055-45.257 13.055-34.523 0-63.824-22.773-74.269-54.25l-1.531.13-40.298 31.187-.527 1.465C35.393 231.798 79.49 261.1 130.55 261.1"
+        fill="#34A853"
+      />
+      <path
+        d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782"
+        fill="#FBBC05"
+      />
+      <path
+        d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
+        fill="#EB4335"
+      />
+    </svg>
+  );
+}
+
+export const RegenerateIcon = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+      />
+    </svg>
+  );
+};
+
+export const UserIcon = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+      />
+    </svg>
+  );
+};
+
+export const PlayIcon = (props: any) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+      <path
+        fillRule="evenodd"
+        d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+};
+
+export const PauseIcon = (props: any) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+      <path
+        fillRule="evenodd"
+        d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+};
+
+export const SearchIcon = (props: any) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+      <path
+        fillRule="evenodd"
+        d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+};
+
+export const HomeIcon = (props: any) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+      <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+      <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
+    </svg>
+  );
+};
+
+export const AccountIcon = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      {...props}
+    >
+      <path
+        fillRule="evenodd"
+        d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+};
+
+export const MoreIcon = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2.5}
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+      />
+    </svg>
+  );
+};
+
+export const HeartEmptyIcon = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+      />
+    </svg>
+  );
+};
+
+export const HeartIcon = (props: any) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+    </svg>
+  );
+};
+export function SpinnerIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="2em"
+      height="2em"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill="currentColor"
+        d="M2,12A11.2,11.2,0,0,1,13,1.05C12.67,1,12.34,1,12,1a11,11,0,0,0,0,22c.34,0,.67,0,1-.05C6,23,2,17.74,2,12Z"
+      ></path>
+    </svg>
+  );
+}
+
+export const MenuIcon = (props: any) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+      />
+    </svg>
+  );
+};
+
+
+================================================
+File: src/server/db/index.ts
+================================================
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
+const client = postgres(process.env.DATABASE_URL!);
+export const db = drizzle(client, { schema });
+
+
+================================================
+File: src/server/db/schema.ts
+================================================
+import { relations, sql } from "drizzle-orm";
+import {
+  index,
+  integer,
+  jsonb,
+  pgTableCreator,
+  primaryKey,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
+import { type AdapterAccount } from "next-auth/adapters";
+
+export const createTable = pgTableCreator((name) => `workout_${name}`); // Custom prefix create table helper function
+
+// Core tables
+export const users = createTable(
+  "user",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: varchar("name", { length: 255 }).notNull(),
+    bio: text("bio"),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    emailVerified: timestamp("email_verified", {
+      mode: "date",
+      withTimezone: true,
+    }),
+    image: text("image"),
+    instagram: varchar("instagram", { length: 255 }),
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => ({
+    nameIdx: index("user_name_idx").on(table.name),
+    idIdx: index("user_id_idx").on(table.id),
+  })
+);
+
+export const workouts = createTable(
+  "workout",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: varchar("user_id", { length: 255 }).references(() => users.id, {
+      onDelete: "cascade",
+    }),
+    workoutJson: jsonb("json").$type<DatabaseStoredGeneratedWorkout>().notNull(),
+
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => ({
+    userIdx: index("workout_user_idx").on(table.userId),
+    createdAtIdx: index("workout_created_at_idx").on(table.createdAt),
+  })
+);
+
+export const likes = createTable(
+  "like",
+  {
+    workoutId: varchar("workout_id", { length: 255 })
+      .notNull()
+      .references(() => workouts.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.workoutId, table.userId] }),
+  })
+);
+
+export const tags = createTable("tag", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+});
+
+// NextAuth tables
+export const accounts = createTable(
+  "account",
+  {
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    type: varchar("type", { length: 255 })
+      .$type<AdapterAccount["type"]>()
+      .notNull(),
+    provider: varchar("provider", { length: 255 }).notNull(),
+    providerAccountId: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: varchar("token_type", { length: 255 }),
+    scope: varchar("scope", { length: 255 }),
+    id_token: text("id_token"),
+    session_state: varchar("session_state", { length: 255 }),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+    userIdIdx: index("account_user_id_idx").on(account.userId),
+  })
+);
+
+export const sessions = createTable(
+  "session",
+  {
+    sessionToken: varchar("session_token", { length: 255 })
+      .notNull()
+      .primaryKey(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    expires: timestamp("expires", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+  },
+  (session) => ({
+    userIdIdx: index("session_user_id_idx").on(session.userId),
+  })
+);
+
+export const verificationTokens = createTable(
+  "verification_token",
+  {
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    token: varchar("token", { length: 255 }).notNull(),
+    expires: timestamp("expires", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  })
+);
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  workouts: many(workouts),
+  likes: many(likes),
+  accounts: many(accounts),
+}));
+
+export const likesRelations = relations(likes, ({ one }) => ({
+  workout: one(workouts, {
+    fields: [likes.workoutId],
+    references: [workouts.id],
+  }),
+  user: one(users, { fields: [likes.userId], references: [users.id] }),
+}));
+
+export const workoutsRelations = relations(workouts, ({ one, many }) => ({
+  user: one(users, { fields: [workouts.userId], references: [users.id] }),
+  likes: many(likes),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, { fields: [accounts.userId], references: [users.id] }),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, { fields: [sessions.userId], references: [users.id] }),
+}));
+
+import { InferSelectModel } from "drizzle-orm";
+
+export type User = InferSelectModel<typeof users>;
+export type workout = InferSelectModel<typeof workouts>;
+export type Like = InferSelectModel<typeof likes>;
+export type Tag = InferSelectModel<typeof tags>;
+export type Account = InferSelectModel<typeof accounts>;
+export type Session = InferSelectModel<typeof sessions>;
+export type VerificationToken = InferSelectModel<typeof verificationTokens>;
+export type workoutWithuserName = workout & { userName: string };
+
+
+================================================
+File: src/server/db/utils.ts
+================================================
+"use server";
+import { db } from "@/server/db";
+import { workouts, likes, users } from "@/server/db/schema";
+import { desc, sql, eq, and } from "drizzle-orm";
+import type { workout, workoutWithuserName } from "@/server/db/schema";
+
+export async function getworkoutsByuser(
+  userId: string
+): Promise<workoutWithuserName[]> {
+  try {
+    const res = await db
+      .select()
+      .from(workouts)
+      .innerJoin(users, eq(workouts.userId, users.id))
+      .where(eq(workouts.userId, userId))
+      .orderBy(desc(workouts.createdAt))
+      .limit(100);
+
+    return res.map((object) => ({
+      ...object.workout,
+      userName: object.user.name,
+    }));
+  } catch (error) {
+    console.error("Error getting workouts by user:", error);
+    return [];
+  }
+}
+export async function getworkoutById(
+  workoutId: string
+): Promise<workout | null> {
+  try {
+    const res = await db
+      .select()
+      .from(workouts)
+      .where(eq(workouts.id, workoutId))
+      .limit(1);
+    if (!res) throw new Error("No workouts found");
+    return res[0];
+  } catch (error) {
+    console.error("Error getting workout by fileUrl:", error);
+    return null;
+  }
+}
+
+export async function getworkouts(): Promise<workout[]> {
+  try {
+    const res = await db
+      .select()
+      .from(workouts)
+      .orderBy(desc(workouts.createdAt))
+      .limit(60);
+    if (!res) throw new Error("No workouts found");
+    return res;
+  } catch (error) {
+    console.error("Error fetching workouts:", error);
+    return [];
+  }
+}
+
+export async function getLikedworkouts(
+  userId: string
+): Promise<workoutWithuserName[]> {
+  try {
+    const res = await db
+      .select()
+      .from(workouts)
+      .where(eq(likes.userId, userId))
+      .innerJoin(users, eq(workouts.userId, users.id))
+      .orderBy(desc(workouts.createdAt))
+      .limit(60);
+    if (!res) throw new Error("No workouts found");
+    return res.map((object) => ({
+      ...object.workout,
+      userName: object.user.name,
+    }));
+  } catch (error) {
+    console.error("Error fetching liked workouts:", error);
+    return [];
+  }
+}
+interface LikeStatus {
+  likesCount: number;
+  isLiked: boolean;
+}
+export async function getLikeStatus({
+  userId,
+  workoutId,
+}: {
+  userId?: string;
+  workoutId: string;
+}): Promise<LikeStatus> {
+  try {
+    const result = await db
+      .select({
+        likesCount: sql<number>`COUNT(${likes.userId})`.as("likes_count"),
+        isLiked: userId
+          ? sql<boolean>`BOOL_OR(${likes.userId} = ${userId})`.as("is_liked")
+          : sql<boolean>`false`.as("is_liked"),
+      })
+      .from(likes)
+      .where(eq(likes.workoutId, workoutId));
+    const { likesCount, isLiked } = result[0] || {
+      likesCount: 0,
+      isLiked: false,
+    };
+    return { likesCount, isLiked };
+  } catch (error) {
+    console.error("Error fetching like status:", error);
+    return { likesCount: 0, isLiked: false };
+  }
+}
+
+export async function likeworkout(userId: string, workoutId: string) {
+  if (typeof userId !== "string" || typeof workoutId !== "string") {
+    console.error("Invalid userId or workoutId");
+    return {
+      success: false,
+      delta: 0,
+      message: "Invalid userId or workoutId.",
+    };
+  }
+  try {
+    const existingLike = await db
+      .select()
+      .from(likes)
+      .where(and(eq(likes.userId, userId), eq(likes.workoutId, workoutId)));
+    if (existingLike.length > 0) {
+      await db
+        .delete(likes)
+        .where(and(eq(likes.userId, userId), eq(likes.workoutId, workoutId)));
+      return {
+        success: true,
+        delta: -1,
+        message: "Like removed successfully.",
+      };
+    }
+    await db.insert(likes).values({
+      userId,
+      workoutId,
+    });
+    return { success: true, delta: 1, message: "workout liked successfully." };
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    return {
+      success: false,
+      delta: 0,
+      message: "Something went wrong.",
+    };
+  }
+}
+
+export async function getworkout(workoutId: string): Promise<workout | null> {
+  try {
+    const data = await db
+      .select()
+      .from(workouts)
+      .where(eq(workouts.id, workoutId))
+      .limit(1);
+    if (!data) return null;
+    return data[0];
+  } catch (error) {
+    console.error("Error fetching workout:", error);
+    return null;
+  }
+}
+
+export async function newworkout({
+  workoutJson,
+  userId,
+}: {
+  workoutJson: any;
+  userId: string;
+}) {
+  try {
+    const workout = await db
+      .insert(workouts)
+      .values({
+        workoutJson,
+      })
+      .returning();
+    return {
+      workout: workout[0],
+      status: { status: "success", message: "workout created successfully." },
+    };
+  } catch (error) {
+    console.error("Error creating new workout:", error);
+    return {
+      workout: null,
+      status: { status: "error", message: "Failed to create new workout." },
+    };
+  }
+}
+
+export async function deleteworkout({
+  workout,
+}: {
+  workout: workoutWithuserName | workout;
+}) {
+  try {
+    await db.delete(workouts).where(eq(workouts.id, workout.id));
+    return { status: "success", message: "workout deleted successfully." };
+  } catch (error) {
+    console.error("Error deleting workout:", error);
+    return { status: "error", message: "Failed to delete workout." };
+  }
+}
+
+
+================================================
+File: src/server/generate-workout/index.ts
+================================================
+import { exercises, workouts } from "./exercises";
+
+export function getMuscleGroup(exerciseId: string): string | null {
+  for (const muscleGroupKey in exercises) {
+    const muscleGroup = exercises[muscleGroupKey];
+    if (
+      muscleGroup.exercises &&
+      muscleGroup.exercises.some((exercise) => exercise.id === exerciseId)
+    ) {
+      return muscleGroupKey;
+    } else if (
+      muscleGroupKey === "upperbody" ||
+      muscleGroupKey === "lowerbody"
+    ) {
+      for (const subGroupKey in muscleGroup) {
+        if (subGroupKey !== "importance" && subGroupKey !== "exercises") {
+          const subGroup = muscleGroup[subGroupKey];
+          if (
+            subGroup &&
+            typeof subGroup === "object" &&
+            subGroup.exercises &&
+            subGroup.exercises.some(
+              (exercise: Exercise) => exercise.id === exerciseId
+            )
+          ) {
+            return subGroupKey;
+          } else if (subGroupKey === "arms" && typeof subGroup === "object") {
+            for (const armSubGroupKey in subGroup) {
+              if (
+                armSubGroupKey !== "importance" &&
+                armSubGroupKey !== "exercises"
+              ) {
+                const armSubGroup = subGroup[armSubGroupKey];
+                if (
+                  armSubGroup &&
+                  typeof armSubGroup === "object" &&
+                  armSubGroup.exercises &&
+                  armSubGroup.exercises.some(
+                    (exercise: Exercise) => exercise.id === exerciseId
+                  )
+                ) {
+                  return armSubGroupKey;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+// Helper function to get exercises from a muscle group
+function getExercisesFromMuscleGroup(muscleGroup: MuscleGroup): Exercise[] {
+  const allExercises: Exercise[] = [];
+
+  if (muscleGroup?.exercises && Array.isArray(muscleGroup.exercises)) {
+    allExercises.push(...muscleGroup.exercises);
+  }
+
+  for (const key in muscleGroup) {
+    if (
+      key !== "importance" &&
+      key !== "exercises" &&
+      typeof muscleGroup[key] === "object"
+    ) {
+      const nestedGroup = muscleGroup[key] as MuscleGroup; // Type assertion
+
+      if (nestedGroup) {
+        if (nestedGroup.exercises && Array.isArray(nestedGroup.exercises)) {
+          allExercises.push(...nestedGroup.exercises);
+        }
+
+        for (const nestedKey in nestedGroup) {
+          if (
+            nestedKey !== "importance" &&
+            nestedKey !== "exercises" &&
+            typeof nestedGroup[nestedKey] === "object"
+          ) {
+            const deepNestedGroup = nestedGroup[nestedKey] as MuscleGroup; // Type assertion
+
+            if (
+              deepNestedGroup?.exercises &&
+              Array.isArray(deepNestedGroup.exercises)
+            ) {
+              allExercises.push(...deepNestedGroup.exercises);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return allExercises;
+}
+
+// Check if an exercise meets user criteria
+export function meetsUserCriteria(
+  exercise: Exercise,
+  userPreferences: UserPreferences
+): boolean {
+  if (!exercise.can_train_at_home && userPreferences.place === "home") {
+    return false;
+  }
+  return true;
+}
+
+// Generate a workout based on user preferences
+export function generateWorkout(
+  userPreferences: UserPreferences
+): GeneratedWorkout {
+  const workoutLength = workouts[userPreferences.workoutLength];
+  const mainExercises: Exercise[] = [];
+  const allMatchingExercises: Exercise[] = [];
+
+  for (const focusArea of userPreferences.focusAreas) {
+    const foundExercises = findExercisesByFocusArea(focusArea, exercises);
+    allMatchingExercises.push(...foundExercises);
+  }
+
+  const availableExercises = allMatchingExercises.filter((exercise) =>
+    meetsUserCriteria(exercise, userPreferences)
+  );
+
+  if (availableExercises.length > 0) {
+    const exercisePool = [...availableExercises];
+    const targetExerciseCount = workoutLength.mainWorkout.totalexercises;
+
+    for (let i = 0; i < targetExerciseCount && exercisePool.length > 0; i++) {
+      const randomIndex = Math.floor(Math.random() * exercisePool.length);
+      mainExercises.push(exercisePool[randomIndex]);
+      exercisePool.splice(randomIndex, 1);
+    }
+  }
+
+  return {
+    main: mainExercises,
+  };
+}
+
+function findExercisesByFocusArea(
+  focusArea: string,
+  exercisesDatabase: ExercisesDatabase
+): Exercise[] {
+  let foundExercises: Exercise[] = [];
+
+  for (const categoryKey in exercisesDatabase) {
+    if (categoryKey === focusArea) {
+      const muscleGroupData = exercisesDatabase[categoryKey];
+      if (muscleGroupData) {
+        foundExercises.push(...getExercisesFromMuscleGroup(muscleGroupData));
+      }
+    } else if (typeof exercisesDatabase[categoryKey] === "object") {
+      const category = exercisesDatabase[categoryKey] as MuscleGroup; // Type assertion
+      for (const subCategoryKey in category) {
+        if (subCategoryKey === focusArea) {
+          const subCategory = category[subCategoryKey] as MuscleGroup; // Type assertion
+          if (subCategory) {
+            foundExercises.push(...getExercisesFromMuscleGroup(subCategory));
+          }
+        } else if (typeof category[subCategoryKey] === "object") {
+          const subCategory = category[subCategoryKey] as MuscleGroup; // Type assertion
+          if (subCategory) {
+            foundExercises.push(
+              ...findExercisesByFocusArea(focusArea, {
+                [subCategoryKey]: subCategory,
+              })
+            );
+          }
+        }
+      }
+    }
+  }
+
+  return foundExercises;
+}
+
+
+================================================
+File: src/server/generate-workout/exercises/abs.ts
+================================================
+export const absExercises: Exercise[] = [
+  {
+    id: "plank",
+    name: "Plank",
+    description:
+      "A static hold exercise where you support your body weight on your forearms and toes, engaging the core.",
+    muscleGroups: [
+      "rectus abdominis",
+      "transverse abdominis",
+      "obliques",
+      "lower back",
+    ],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+    hasDuration: true,
+  },
+  {
+    id: "crunch",
+    name: "Crunch",
+    description:
+      "A core exercise where you lift your upper back off the ground while keeping your lower back on the floor.",
+    muscleGroups: ["rectus abdominis"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "russian-twist",
+    name: "Russian Twist",
+    description:
+      "A rotational core exercise where you twist your torso from side to side while seated.",
+    muscleGroups: ["obliques", "rectus abdominis"],
+    difficulty: "beginner",
+    equipment: ["medicine ball", "dumbbell"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "leg-raise",
+    name: "Leg Raise",
+    description:
+      "A lower-abdominal exercise where you lift your legs while lying on your back.",
+    muscleGroups: ["lower rectus abdominis"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "bicycle-crunch",
+    name: "Bicycle Crunch",
+    description:
+      "A dynamic crunch variation where you alternate bringing opposite elbows and knees together.",
+    muscleGroups: ["rectus abdominis", "obliques"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: true,
+  },
+  {
+    id: "hanging-leg-raise",
+    name: "Hanging Leg Raise",
+    description:
+      "An advanced core exercise where you raise your legs while hanging from a bar.",
+    muscleGroups: ["rectus abdominis", "hip flexors"],
+    difficulty: "intermediate",
+    equipment: ["pull-up bar"],
+    can_train_at_home: false,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "ab-wheel-rollout",
+    name: "Ab Wheel Rollout",
+    description:
+      "A challenging core exercise where you extend and retract using an ab wheel, engaging the entire core.",
+    muscleGroups: ["rectus abdominis", "transverse abdominis", "lower back"],
+    difficulty: "intermediate",
+    equipment: ["ab wheel"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "side-plank",
+    name: "Side Plank",
+    description:
+      "A core stability exercise where you balance on one forearm and the side of your foot to target the obliques.",
+    muscleGroups: ["obliques", "transverse abdominis"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: true,
+    hasDuration: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/back.ts
+================================================
+export const backExercises: Exercise[] = [
+  {
+    id: "pull-up",
+    name: "Pull-Ups / Chin-Ups",
+    description:
+      "A bodyweight exercise where you pull yourself up on a bar until your chin is above it.",
+    muscleGroups: ["latissimus dorsi", "biceps", "upper back"],
+    difficulty: "intermediate",
+    equipment: ["pull-up bar"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    image: "back.jpg",
+  },
+  {
+    id: "lat-pulldown",
+    name: "Lat Pulldowns",
+    description:
+      "A cable machine exercise where you pull a bar down to your chest, mimicking a pull-up motion.",
+    muscleGroups: ["latissimus dorsi", "biceps", "upper back"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "bent-over-barbell-row",
+    name: "Bent-Over Barbell Rows",
+    description:
+      "A barbell exercise where you hinge at the hips and pull the bar toward your lower ribs.",
+    muscleGroups: ["latissimus dorsi", "traps", "rhomboids", "rear delts"],
+    difficulty: "intermediate",
+    equipment: ["barbell"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+    image: "back1.jpg",
+  },
+  {
+    id: "dumbbell-row",
+    name: "Dumbbell Rows",
+    description:
+      "A unilateral movement where you row a dumbbell towards your waist while supporting yourself with the other arm.",
+    muscleGroups: ["latissimus dorsi", "rhomboids", "traps"],
+    difficulty: "beginner",
+    equipment: ["dumbbell"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: true,
+    image: "back1.jpg",
+  },
+  {
+    id: "seated-cable-row",
+    name: "Seated Cable Rows",
+    description:
+      "A machine exercise where you pull a handle towards your torso while seated.",
+    muscleGroups: ["latissimus dorsi", "rhomboids", "traps"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+    image: "back1.jpg",
+  },
+  {
+    id: "deadlift",
+    name: "Deadlifts",
+    description:
+      "A full-body exercise where you lift a barbell from the ground to a standing position.",
+    muscleGroups: ["lower back", "glutes", "hamstrings", "traps"],
+    difficulty: "intermediate",
+    equipment: ["barbell"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+    image: "back1.jpg",
+  },
+  {
+    id: "face-pull",
+    name: "Face Pulls",
+    description:
+      "A cable exercise where you pull a rope attachment toward your face to strengthen the rear delts and upper back.",
+    muscleGroups: ["rear delts", "traps", "rhomboids"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+    image: "upperback.jpg",
+  },
+  {
+    id: "t-bar-row",
+    name: "T-Bar Rows",
+    description:
+      "A barbell row variation where you pull a bar anchored at one end toward your torso.",
+    muscleGroups: ["latissimus dorsi", "traps", "rhomboids"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "T-bar row machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+    image: "back1.jpg",
+  },
+  {
+    id: "reverse-fly",
+    name: "Reverse Flies",
+    description:
+      "An isolation exercise where you extend your arms out to the sides to strengthen the rear delts and upper back.",
+    muscleGroups: ["rear delts", "rhomboids", "traps"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "cable machine"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+    image: "upperback.jpg",
+  },
+  {
+    id: "superman-hold",
+    name: "Superman Holds",
+    description:
+      "A bodyweight exercise where you lift your arms and legs off the ground while lying on your stomach to target the lower back.",
+    muscleGroups: ["lower back", "glutes", "hamstrings"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "single-arm-cable-row",
+    name: "Single-Arm Cable Rows",
+    description:
+      "A single-arm cable machine exercise where you pull a handle towards your torso while seated.",
+    muscleGroups: ["latissimus dorsi", "rhomboids", "traps"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/biceps.ts
+================================================
+
+export const bicepExercises: Exercise[] = [
+  {
+    id: "bicep-curl",
+    name: "Bicep Curl",
+    description:
+      "A basic dumbbell exercise where you curl the weight up towards your shoulders, targeting the biceps.",
+    muscleGroups: ["biceps"],
+    difficulty: "beginner",
+    equipment: ["dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: true,
+  },
+  {
+    id: "hammer-curl",
+    name: "Hammer Curl",
+    description:
+      "A variation of the bicep curl where the palms face each other, targeting both the biceps and brachialis.",
+    muscleGroups: ["biceps", "brachialis"],
+    difficulty: "beginner",
+    equipment: ["dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: true,
+  },
+  {
+    id: "concentration-curl",
+    name: "Concentration Curl",
+    description:
+      "A seated dumbbell curl focusing on isolating the biceps by keeping the upper arm stationary.",
+    muscleGroups: ["biceps"],
+    difficulty: "beginner",
+    equipment: ["dumbbell"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: true,
+  },
+  {
+    id: "ez-bar-curl",
+    name: "EZ Bar Curl",
+    description:
+      "A curl performed with an EZ curl bar, reducing wrist strain while targeting the biceps.",
+    muscleGroups: ["biceps"],
+    difficulty: "beginner",
+    equipment: ["EZ curl bar"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "cable-bicep-curl",
+    name: "Cable Bicep Curl",
+    description:
+      "A controlled bicep curl using a cable machine to maintain constant tension on the muscles.",
+    muscleGroups: ["biceps"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "incline-dumbbell-curl",
+    name: "Incline Dumbbell Curl",
+    description:
+      "A dumbbell curl performed while lying on an incline bench, increasing the range of motion for the biceps.",
+    muscleGroups: ["biceps"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells", "incline bench"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: true,
+  },
+  {
+    id: "preacher-curl",
+    name: "Preacher Curl",
+    description:
+      "A bicep curl performed with the arms resting on a preacher bench to eliminate momentum and isolate the biceps.",
+    muscleGroups: ["biceps"],
+    difficulty: "beginner",
+    equipment: ["EZ curl bar", "preacher bench"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "arnold-curl",
+    name: "Arnold Curl",
+    description:
+      "A combination curl where you lift the dumbbells with a standard grip and lower them with a reverse grip, targeting both biceps and forearms.",
+    muscleGroups: ["biceps", "forearms"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/calves.ts
+================================================
+export const calfExercises: Exercise[] = [
+  {
+    id: "calf-raise",
+    name: "Calf Raise",
+    description:
+      "An isolation movement where you raise your heels off the ground to target the calf muscles.",
+    muscleGroups: ["calves"],
+    difficulty: "beginner",
+    equipment: ["bodyweight", "dumbbells", "machine"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+    image: "calves.jpg",
+  },
+  {
+    id: "step-up",
+    name: "Step-Up",
+    description:
+      "A unilateral movement where you step onto an elevated surface to engage the legs and glutes.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+    image: "calves.jpg",
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/cardio.ts
+================================================
+export const cardioExercises: Exercise[] = [
+  {
+    id: "jump-rope",
+    name: "Jump Rope",
+    description:
+      "A high-intensity cardiovascular exercise where you jump over a rotating rope.",
+    muscleGroups: ["calves", "quadriceps", "hamstrings", "shoulders"],
+    difficulty: "beginner",
+    equipment: ["jump rope"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+  },
+  {
+    id: "running",
+    name: "Running",
+    description:
+      "A fundamental cardio exercise that improves endurance and strengthens the lower body.",
+    muscleGroups: ["quadriceps", "hamstrings", "calves", "glutes"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+
+  },
+  {
+    id: "cycling",
+    name: "Cycling",
+    description:
+      "A low-impact cardio workout performed on a bicycle, targeting the legs and improving cardiovascular health.",
+    muscleGroups: ["quadriceps", "hamstrings", "calves", "glutes"],
+    difficulty: "beginner",
+    equipment: ["bicycle", "stationary bike"],
+    can_train_at_home: false,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+
+  },
+  {
+    id: "burpees",
+    name: "Burpees",
+    description:
+      "A full-body cardio exercise combining a squat, jump, and push-up for maximum intensity.",
+    muscleGroups: ["quadriceps", "hamstrings", "chest", "shoulders", "core"],
+    difficulty: "intermediate",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+
+  },
+  {
+    id: "mountain-climbers",
+    name: "Mountain Climbers",
+    description:
+      "A dynamic exercise where you alternate driving your knees toward your chest in a push-up position.",
+    muscleGroups: ["core", "shoulders", "quadriceps", "hamstrings"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+    hasDuration: true,
+
+  },
+  {
+    id: "rowing-machine",
+    name: "Rowing Machine",
+    description:
+      "A full-body cardio workout that mimics rowing a boat, engaging the legs, back, and arms.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes", "back", "shoulders"],
+    difficulty: "beginner",
+    equipment: ["rowing machine"],
+    can_train_at_home: false,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+
+  },
+  {
+    id: "jumping-jacks",
+    name: "Jumping Jacks",
+    description:
+      "A simple cardio exercise where you jump while spreading your arms and legs, then return to the starting position.",
+    muscleGroups: ["calves", "shoulders", "core"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+
+  },
+  {
+    id: "stair-climbing",
+    name: "Stair Climbing",
+    description:
+      "A great cardio and leg-strengthening exercise that involves walking or running up stairs.",
+    muscleGroups: ["quadriceps", "hamstrings", "calves", "glutes"],
+    difficulty: "beginner",
+    equipment: ["stairs"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+    hasDuration: true,
+
+  },
+  {
+    id: "shadow-boxing",
+    name: "Shadow Boxing",
+    description:
+      "A cardio-intensive workout where you throw punches in the air, improving endurance and coordination.",
+    muscleGroups: ["shoulders", "core", "arms"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+    hasDuration: true,
+
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/chest.ts
+================================================
+export const chestExercises: Exercise[] = [
+  {
+    id: "push-up",
+    name: "Push-Ups",
+    description:
+      "A bodyweight exercise where you lower and raise your body by bending and extending your arms, targeting the chest, shoulders, and triceps.",
+    muscleGroups: ["chest", "triceps", "shoulders"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "bench-press",
+    name: "Bench Press",
+    description:
+      "A barbell or dumbbell exercise where you press the weight away from your chest while lying on a bench.",
+    muscleGroups: ["chest", "triceps", "shoulders"],
+    difficulty: "beginner",
+    equipment: ["barbell", "bench"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "incline-bench-press",
+    name: "Incline Bench Press",
+    description:
+      "A variation of the bench press performed on an incline bench to target the upper chest more effectively.",
+    muscleGroups: ["upper chest", "triceps", "shoulders"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "incline bench"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "dumbbell-bench-press",
+    name: "Dumbbell Bench Press",
+    description:
+      "A bench press variation using dumbbells, allowing for a greater range of motion and muscle activation.",
+    muscleGroups: ["chest", "triceps", "shoulders"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bench"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "incline-dumbbell-press",
+    name: "Incline Dumbbell Press",
+    description:
+      "A dumbbell press performed on an incline bench to target the upper chest.",
+    muscleGroups: ["upper chest", "triceps", "shoulders"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells", "incline bench"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "chest-fly",
+    name: "Chest Flies",
+    description:
+      "An isolation exercise where you extend and bring dumbbells together in an arc motion to target the chest.",
+    muscleGroups: ["chest"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bench"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "cable-crossover",
+    name: "Cable Crossovers",
+    description:
+      "A cable machine exercise where you bring the handles together in front of your body to isolate the chest muscles.",
+    muscleGroups: ["chest"],
+    difficulty: "intermediate",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "dips",
+    name: "Dips (Chest Focus)",
+    description:
+      "A bodyweight exercise where you lower and raise yourself on parallel bars, emphasizing the chest.",
+    muscleGroups: ["chest", "triceps", "shoulders"],
+    difficulty: "intermediate",
+    equipment: ["dip bars"],
+    can_train_at_home: false,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/forearms.ts
+================================================
+export const forearmExercises: Exercise[] = [
+  {
+    id: "wrist-curls",
+    name: "Wrist Curls",
+    description:
+      "A seated exercise where you curl a dumbbell or barbell using only your wrists to strengthen the forearm flexors.",
+    muscleGroups: ["forearm flexors"],
+    difficulty: "beginner",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "reverse-wrist-curls",
+    name: "Reverse Wrist Curls",
+    description:
+      "A variation of wrist curls where you curl the weight upward to target the forearm extensors.",
+    muscleGroups: ["forearm extensors"],
+    difficulty: "beginner",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "farmer's-walk",
+    name: "Farmer's Walk",
+    description:
+      "A grip-strengthening exercise where you walk while holding heavy dumbbells or kettlebells.",
+    muscleGroups: ["forearms", "grip strength", "shoulders"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "kettlebells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "reverse-curl",
+    name: "Reverse Curl",
+    description:
+      "A biceps curl variation where you grip the barbell with palms facing down to engage the forearms.",
+    muscleGroups: ["forearm extensors", "biceps"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "plate-pinch",
+    name: "Plate Pinch",
+    description:
+      "A grip-strengthening exercise where you hold weight plates together using only your fingers.",
+    muscleGroups: ["forearms", "grip strength"],
+    difficulty: "intermediate",
+    equipment: ["weight plates"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "wrist-roller",
+    name: "Wrist Roller",
+    description:
+      "An exercise where you roll a weighted rope up and down using wrist flexion and extension.",
+    muscleGroups: ["forearm flexors", "forearm extensors"],
+    difficulty: "intermediate",
+    equipment: ["wrist roller"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "towel-grip-pull-ups",
+    name: "Towel Grip Pull-Ups",
+    description:
+      "A pull-up variation where you grip towels draped over a bar to challenge forearm and grip strength.",
+    muscleGroups: ["forearms", "grip strength", "biceps", "back"],
+    difficulty: "intermediate",
+    equipment: ["pull-up bar", "towels"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "hand-gripper",
+    name: "Hand Gripper",
+    description:
+      "A simple grip-strengthening exercise using a hand gripper to improve forearm endurance and strength.",
+    muscleGroups: ["forearms", "grip strength"],
+    difficulty: "beginner",
+    equipment: ["hand gripper"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/glutes.ts
+================================================
+
+export const gluteExercises: Exercise[] = [
+  {
+    id: "squat",
+    name: "Squat",
+    description:
+      "A compound movement where you lower your hips from a standing position and then return to standing.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes", "calves"],
+    difficulty: "beginner",
+    equipment: ["barbell", "dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "lunges",
+    name: "Lunges",
+    description:
+      "A unilateral movement where you step forward or backward and lower your body before returning to the start.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+    
+  },
+  {
+    id: "deadlift",
+    name: "Deadlift",
+    description:
+      "A compound lift where you pick a barbell off the ground to a standing position, engaging multiple muscle groups.",
+    muscleGroups: ["hamstrings", "glutes", "lower back", "quadriceps"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "leg-press",
+    name: "Leg Press",
+    description:
+      "A machine-based exercise where you push a weighted platform away using your legs.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["leg press machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "step-up",
+    name: "Step-Up",
+    description:
+      "A unilateral movement where you step onto an elevated surface to engage the legs and glutes.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+  },
+  {
+    id: "bulgarian-split-squat",
+    name: "Bulgarian Split Squat",
+    description:
+      "A challenging unilateral exercise where you squat with one foot elevated behind you.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/hamstrings.ts
+================================================
+export const hamstringExercises: Exercise[] = [
+  {
+    id: "squat",
+    name: "Squat",
+    description:
+      "A compound movement where you lower your hips from a standing position and then return to standing.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes", "calves"],
+    difficulty: "beginner",
+    equipment: ["barbell", "dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+
+  {
+    id: "deadlift",
+    name: "Deadlift",
+    description:
+      "A compound lift where you pick a barbell off the ground to a standing position, engaging multiple muscle groups.",
+    muscleGroups: ["hamstrings", "glutes", "lower back", "quadriceps"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+
+  {
+    id: "hamstring-curl",
+    name: "Hamstring Curl",
+    description:
+      "A machine-based movement where you curl your legs towards your body to target the hamstrings.",
+    muscleGroups: ["hamstrings"],
+    difficulty: "beginner",
+    equipment: ["leg curl machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+    image : "hamstrings.jpg",
+  },
+
+  {
+    id: "bulgarian-split-squat",
+    name: "Bulgarian Split Squat",
+    description:
+      "A challenging unilateral exercise where you squat with one foot elevated behind you.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/index.ts
+================================================
+import { backExercises } from "./back";
+import { bicepExercises } from "./biceps";
+import { chestExercises } from "./chest";
+import { tricepsExercises } from "./triceps";
+import { forearmExercises } from "./forearms";
+import { shoulderExercises } from "./shoulders";
+import { quadricepExercises } from "./quadriceps";
+import { gluteExercises } from "./glutes";
+import { calfExercises } from "./calves";
+import { hamstringExercises } from "./hamstrings";
+import { absExercises } from "./abs";
+import { cardioExercises } from "./cardio";
+
+export const exercises: ExercisesDatabase = {
+  cardio: { importance: 1, exercises: cardioExercises },
+  upperbody: {
+    importance: 1,
+    back: { importance: 1, exercises: backExercises },
+    chest: { importance: 1, exercises: chestExercises },
+    arms: {
+      importance: 1,
+      triceps: { importance: 1, exercises: tricepsExercises },
+      biceps: { importance: 1, exercises: bicepExercises },
+      forearms: { importance: 0.1, exercises: forearmExercises },
+    },
+    shoulders: { importance: 1, exercises: shoulderExercises },
+  },
+  lowerbody: {
+    importance: 1,
+    quadriceps: { importance: 1, exercises: quadricepExercises },
+    hamstrings: { importance: 0.5, exercises: hamstringExercises },
+    glutes: { importance: 0.75, exercises: gluteExercises },
+    calves: { importance: 0.1, exercises: calfExercises },
+  },
+  abs: { importance: 0.5, exercises: absExercises },
+};
+
+export const workouts: Workouts = {
+  shortlength: {
+    mainWorkout: {
+      totalexercises: 6,
+      compoundexercises: 3,
+      totalreps: 30,
+      totalsets: 3,
+      duration: 15,
+    },
+  },
+  mediumlength: {
+    mainWorkout: {
+      totalexercises: 6,
+      compoundexercises: 3,
+      totalreps: 90,
+      totalsets: 9,
+      duration: 30,
+    },
+  },
+  longlength: {
+    mainWorkout: {
+      totalexercises: 10,
+      compoundexercises: 3,
+      totalreps: 150,
+      totalsets: 15,
+      duration: 45,
+    },
+  },
+};
+
+
+================================================
+File: src/server/generate-workout/exercises/quadriceps.ts
+================================================
+export const quadricepExercises: Exercise[] = [
+  {
+    id: "squat",
+    name: "Squat",
+    description:
+      "A compound movement where you lower your hips from a standing position and then return to standing.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes", "calves"],
+    difficulty: "beginner",
+    equipment: ["barbell", "dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "lunges",
+    name: "Lunges",
+    description:
+      "A unilateral movement where you step forward or backward and lower your body before returning to the start.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+  },
+  {
+    id: "deadlift",
+    name: "Deadlift",
+    description:
+      "A compound lift where you pick a barbell off the ground to a standing position, engaging multiple muscle groups.",
+    muscleGroups: ["hamstrings", "glutes", "lower back", "quadriceps"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "leg-press",
+    name: "Leg Press",
+    description:
+      "A machine-based exercise where you push a weighted platform away using your legs.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["leg press machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "calf-raise",
+    name: "Calf Raise",
+    description:
+      "An isolation movement where you raise your heels off the ground to target the calf muscles.",
+    muscleGroups: ["calves"],
+    difficulty: "beginner",
+    equipment: ["bodyweight", "dumbbells", "machine"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "hamstring-curl",
+    name: "Hamstring Curl",
+    description:
+      "A machine-based movement where you curl your legs towards your body to target the hamstrings.",
+    muscleGroups: ["hamstrings"],
+    difficulty: "beginner",
+    equipment: ["leg curl machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "step-up",
+    name: "Step-Up",
+    description:
+      "A unilateral movement where you step onto an elevated surface to engage the legs and glutes.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+  },
+  {
+    id: "bulgarian-split-squat",
+    name: "Bulgarian Split Squat",
+    description:
+      "A challenging unilateral exercise where you squat with one foot elevated behind you.",
+    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells", "bodyweight"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/shoulders.ts
+================================================
+export const shoulderExercises: Exercise[] = [
+  {
+    id: "overhead-press",
+    name: "Overhead Press",
+    description:
+      "A compound movement where you press a barbell or dumbbells overhead to strengthen the shoulders.",
+    muscleGroups: ["deltoids", "triceps", "upper chest"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "dumbbell-lateral-raise",
+    name: "Dumbbell Lateral Raise",
+    description:
+      "An isolation exercise where you raise dumbbells out to the sides to target the lateral delts.",
+    muscleGroups: ["lateral deltoids"],
+    difficulty: "beginner",
+    equipment: ["dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "front-raise",
+    name: "Front Raise",
+    description:
+      "An isolation movement where you lift dumbbells or a plate straight in front of you to target the front delts.",
+    muscleGroups: ["front deltoids"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "weight plate"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "rear-delt-fly",
+    name: "Rear Delt Fly",
+    description:
+      "An isolation exercise where you bend over and extend your arms outward to strengthen the rear delts.",
+    muscleGroups: ["rear deltoids", "traps"],
+    difficulty: "beginner",
+    equipment: ["dumbbells", "cable machine"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+    image: "rear-delts.jpg",
+  },
+  {
+    id: "arnold-press",
+    name: "Arnold Press",
+    description:
+      "A variation of the overhead press where you rotate the dumbbells during the lift for complete shoulder activation.",
+    muscleGroups: ["deltoids", "triceps", "upper chest"],
+    difficulty: "intermediate",
+    equipment: ["dumbbells"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "face-pull",
+    name: "Face Pull",
+    description:
+      "A cable exercise where you pull a rope attachment toward your face to strengthen the rear delts and upper traps.",
+    muscleGroups: ["rear deltoids", "traps", "rhomboids"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "cable-lateral-raise",
+    name: "Cable Lateral Raise",
+    description:
+      "A machine-based version of lateral raises that provides constant tension on the lateral delts.",
+    muscleGroups: ["lateral deltoids"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/exercises/triceps.ts
+================================================
+export const tricepsExercises: Exercise[] = [
+  {
+    id: "triceps-dips",
+    name: "Triceps Dips",
+    description:
+      "A bodyweight exercise where you lower and raise yourself on parallel bars, targeting the triceps.",
+    muscleGroups: ["triceps", "shoulders", "chest"],
+    difficulty: "intermediate",
+    equipment: ["dip bars"],
+    can_train_at_home: false,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "bench-dips",
+    name: "Bench Dips",
+    description:
+      "A triceps exercise where you use a bench to lower and raise your body, placing emphasis on the triceps.",
+    muscleGroups: ["triceps"],
+    difficulty: "beginner",
+    equipment: ["bench"],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "close-grip-bench-press",
+    name: "Close-Grip Bench Press",
+    description:
+      "A bench press variation where you place your hands closer together to emphasize triceps activation.",
+    muscleGroups: ["triceps", "chest", "shoulders"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "bench"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "triceps-pushdown",
+    name: "Triceps Pushdown",
+    description:
+      "A cable exercise where you push a bar or rope attachment down to extend your arms fully, isolating the triceps.",
+    muscleGroups: ["triceps"],
+    difficulty: "beginner",
+    equipment: ["cable machine"],
+    can_train_at_home: false,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "overhead-triceps-extension",
+    name: "Overhead Triceps Extension",
+    description:
+      "A dumbbell or cable exercise where you extend your arms overhead, focusing on the long head of the triceps.",
+    muscleGroups: ["triceps"],
+    difficulty: "beginner",
+    equipment: ["dumbbell", "cable machine"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "skull-crushers",
+    name: "Skull Crushers",
+    description:
+      "A triceps isolation exercise where you lower a barbell or dumbbells toward your forehead before extending your arms.",
+    muscleGroups: ["triceps"],
+    difficulty: "intermediate",
+    equipment: ["barbell", "dumbbells", "bench"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: false,
+  },
+  {
+    id: "diamond-push-up",
+    name: "Diamond Push-Up",
+    description:
+      "A push-up variation where your hands form a diamond shape under your chest to emphasize the triceps.",
+    muscleGroups: ["triceps", "chest", "shoulders"],
+    difficulty: "beginner",
+    equipment: [],
+    can_train_at_home: true,
+    bodyweight: true,
+    compound: true,
+    unilateral: false,
+  },
+  {
+    id: "kickbacks",
+    name: "Triceps Kickbacks",
+    description:
+      "An isolation exercise where you extend your arm backward with a dumbbell to engage the triceps.",
+    muscleGroups: ["triceps"],
+    difficulty: "beginner",
+    equipment: ["dumbbell"],
+    can_train_at_home: true,
+    bodyweight: false,
+    compound: false,
+    unilateral: true,
+  },
+];
+
+
+================================================
+File: src/server/generate-workout/utils/ai.ts
+================================================
+import "server-only";
+
+import { generatePrompt } from "./generatePrompt";
+import { generationConfig } from "./generationConfig";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const apiKey = process.env.GEMINI_API_KEY!;
+const genAI = new GoogleGenerativeAI(apiKey);
+
+interface AiRes {
+  name: string;
+  description: string;
+  focusAreas: string[];
+}
+
+export async function generateUserPreferences(
+  userQuery: string
+): Promise<AiRes> {
+  const prompt = generatePrompt(userQuery);
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.0-flash",
+  });
+  const chatSession = model.startChat({
+    generationConfig,
+    history: [],
+  });
+
+  const res = await chatSession.sendMessage(prompt);
+
+  if (
+    res.response.candidates === undefined ||
+    res.response.candidates.length === 0 ||
+    res.response.candidates[0].content.parts[0].text === undefined
+  ) {
+    throw new Error("No workout routine generated");
+  }
+
+  return JSON.parse(res.response.candidates[0].content.parts[0].text);
+}
+
+
+================================================
+File: src/server/generate-workout/utils/generatePrompt.ts
+================================================
+export function generatePrompt(userQuery: string) {
+  return `
+
+  You are a professional personal trainer that will help your client by framing a workout for them based on their query. 
+
+  Examples of responses are:
+
+  { client_query: I want to do some cardio, your_response: ["cardio"] }
+  { client_query: I want to train upperbody, your_response: ["upperbody"] }
+  { client_query: I want to train lowerbody, your_response: ["lowerbody"] }
+  { client_query: I want to train legs, your_response: ["lowerbody"] }
+  { client_query: I want to train abs, response:["abs"] }
+  { client_query: I want to train cardio, your_response: ["cardio"] }
+  { client_query: I want to train chest, your_response: ["chest"] }
+  { client_query: I want to train back, your_response: ["back"] }
+  { client_query: I want to train arms, your_response: ["arms"] }
+  { client_query: I want to train abs and upperbody, your_response: ["abs","upperbody"] }
+  { client_query: I want to do a full body workout, your_response: ["upperbody","lowerbody","abs"] }
+  { client_query: I want to train legs and then do some cardio, your_response: ["lowerbody","cardio"] }
+  { client_query: I want to build strenght, your_response: ["lowerbody","upperbody"] }
+
+  - responses like upperbody will include all other types of workouts that are related to upperbody, e.g. back, chest, arms etc.
+  - likewise a response like arms will include tricpes and biceps.
+  - if a user specificies a child of a parent muscle group like biceps, then dont respond with arms as it will include triceps which can conflict with user's goal of biceps.
+
+  The user query is: ${userQuery}
+
+  Please return a JSON array of strings as shown in previous examples in the response field.
+
+  The only possible outputs are:
+
+  - cardio
+  - abs
+  - upperbody
+  - chest
+  - back
+  - shoulders
+  - arms
+  - triceps
+  - biceps
+  - forearms
+  - lowerbody
+  - quadriceps
+  - hamstrings
+  - glutes
+  - calves
+
+
+  your final respponse should be a json object with the following properties:
+
+  name: string
+  description: string
+  focusAreas: string[]
+
+  - try make name and description unique to add some personality as if youre a fitness trainer
+
+  example response:
+
+  {
+    name: "Cool Full Body Workout",
+    description: "A workout that focuses on training upperbody, lowerbody and abs",
+    focusAreas: ["upperbody", "lowerbody", "abs"]
+  }
+
+  `;
+}
+
+
+================================================
+File: src/server/generate-workout/utils/generationConfig.ts
+================================================
+import { GenerationConfig, SchemaType } from "@google/generative-ai";
+export const generationConfig: GenerationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8000,
+  responseMimeType: "application/json",
+  responseSchema: {
+    type: SchemaType.OBJECT,
+    properties: {
+      name: {
+        type: SchemaType.STRING,
+      },
+      description: {
+        type: SchemaType.STRING,
+      },
+      focusAreas: {
+        type: SchemaType.ARRAY,
+        items: {
+          type: SchemaType.STRING,
+        },
+      },
+    },
+    required: ["name", "description", "focusAreas"],
+  },
+};
+
+
+================================================
+File: src/server/generate-workout/utils/index.ts
+================================================
+"use server";
+
+import { generateUserPreferences } from "./ai";
+import { newworkout } from "@/server/db/utils";
+import { generateWorkout } from "..";
+
+interface PromiseResult {
+  workoutId: string | null;
+  status: "success" | "error";
+  message: string;
+}
+
+export async function generateUserWorkout({
+  fitnessGoal,
+  fitnessLevel,
+  workoutLength,
+  place,
+  query,
+}: {
+  fitnessGoal: FitnessGoal;
+  fitnessLevel: FitnessLevel;
+  workoutLength: WorkoutLength;
+  place: Place;
+  query: string;
+}): Promise<PromiseResult> {
+  if (!fitnessGoal || !fitnessLevel || !workoutLength || !place || !query) {
+    throw new Error("Failed to create your workout routine, please try again");
+  }
+  const routineOptions = {
+    fitnessGoal,
+    fitnessLevel,
+    workoutLength,
+    place,
+    query,
+  };
+  try {
+    const aiRes = await generateUserPreferences(query);
+
+    console.log(aiRes);
+
+    const UserPreferencesMock: UserPreferences = {
+      workoutLength: "shortlength",
+      goals: "strength",
+      place: "gym",
+      focusAreas: aiRes.focusAreas,
+    };
+
+    const workout = generateWorkout(UserPreferencesMock);
+    const databaseStoredGeneratedWorkout: DatabaseStoredGeneratedWorkout = {
+      name: aiRes.name,
+      description: aiRes.description,
+      ...workout,
+      ...routineOptions,
+      focusAreas: aiRes.focusAreas,
+    };
+
+    const returningWorkoutDatabaseEntry = await newworkout({
+      workoutJson: databaseStoredGeneratedWorkout,
+      userId: "1",
+    });
+
+    if (
+      returningWorkoutDatabaseEntry.status.status === "error" ||
+      !returningWorkoutDatabaseEntry.workout
+    ) {
+      throw new Error("Failed to create workout");
+    }
+
+    return {
+      workoutId: returningWorkoutDatabaseEntry.workout.id,
+      status: "success",
+      message: "Your workout routine has been generated!",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      workoutId: null,
+      status: "error",
+      message: "Failed to generate your workout routine, please try again",
+    };
+  }
+}
+
+

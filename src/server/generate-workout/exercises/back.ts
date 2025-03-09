@@ -1,4 +1,3 @@
-
 export const backExercises: Exercise[] = [
   {
     id: "pull-up",
@@ -12,6 +11,7 @@ export const backExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: false,
+    image: "back.jpg",
   },
   {
     id: "lat-pulldown",
@@ -38,6 +38,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: true,
     unilateral: false,
+    image: "back1.jpg",
   },
   {
     id: "dumbbell-row",
@@ -51,6 +52,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: true,
     unilateral: true,
+    image: "back1.jpg",
   },
   {
     id: "seated-cable-row",
@@ -64,6 +66,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: true,
     unilateral: false,
+    image: "back1.jpg",
   },
   {
     id: "deadlift",
@@ -77,6 +80,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: true,
     unilateral: false,
+    image: "back1.jpg",
   },
   {
     id: "face-pull",
@@ -90,6 +94,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: false,
     unilateral: false,
+    image: "upperback.jpg",
   },
   {
     id: "t-bar-row",
@@ -103,6 +108,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: true,
     unilateral: false,
+    image: "back1.jpg",
   },
   {
     id: "reverse-fly",
@@ -116,6 +122,7 @@ export const backExercises: Exercise[] = [
     bodyweight: false,
     compound: false,
     unilateral: false,
+    image: "upperback.jpg",
   },
   {
     id: "superman-hold",

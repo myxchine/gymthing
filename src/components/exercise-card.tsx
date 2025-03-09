@@ -30,7 +30,7 @@ export default function ExerciseCard({
         <div className="w-full flex flex-col items-center justify-center ">
           {muscleGroup !== "cardio" && (
             <Image
-              src={`/images/${muscleGroup}.jpg`}
+              src={`/images/${exercise.image || muscleGroup + ".jpg"}`}
               alt={exercise.name}
               width={200}
               height={200}
