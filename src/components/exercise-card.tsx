@@ -11,7 +11,7 @@ export default function ExerciseCard({
     <div className="flex flex-row w-full gap-2">
       <div className=" mt-5 h-[2px] w-6 bg-black" />
 
-      <div className=" flex flex-col gap-2 w-full  max-w-sm">
+      <div className=" flex flex-col gap-2 w-full">
         <div className="flex flex-col w-full p-2 gap-3 ">
           <h2 className="font-semibold text-xl">{exercise.name}</h2>
           <ExerciseMuscleGroups muscleGroups={exercise.muscleGroups} />
@@ -27,7 +27,7 @@ export default function ExerciseCard({
           <p className="text-xs">rest for atleast 2 minutes between sets</p>
         </div>
 
-        <div className="w-full flex flex-col items-center justify-center ">
+        <div className="w-full flex flex-col items-start justify-start ">
           {muscleGroup !== "cardio" && (
             <Image
               src={`/images/${exercise.image || muscleGroup + ".jpg"}`}
@@ -35,12 +35,12 @@ export default function ExerciseCard({
               width={200}
               height={200}
               priority
-              className="mx-auto"
+              className=""
             />
           )}
         </div>
         {!exercise.bodyweight && (
-          <p className="text-xs w-full text-center max-w-[200px] mx-auto">
+          <p className="text-xs w-full text-center max-w-[200px]">
             Pick a weight that takes you to failure on each set
           </p>
         )}

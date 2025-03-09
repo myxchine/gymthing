@@ -3,8 +3,9 @@
 import { Loading } from "@/components/loading";
 import { generateUserWorkout } from "@/server/generate-workout/utils";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import RollingPrompts from "./rolling-prompts";
+import MarqueePrompts from "./marquee";
 
 const fitnessGoalOptions: FitnessGoal[] = [
   `Improve General Fitness & Health`,
@@ -32,12 +33,6 @@ export default function PersonalWorkoutRoutineForm() {
     place: placeOptions[0],
     query: "",
   });
-  const textareaRef = useRef<HTMLTextAreaElement>(null); // Create a ref for the textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus(); // Focus the textarea when the component mounts
-    }
-  }, []);
 
   const router = useRouter();
 
@@ -90,25 +85,37 @@ export default function PersonalWorkoutRoutineForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4 pb-0 w-full flex flex-col items-centeer justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
+    <div className="max-w-xl mx-auto p-4  w-full flex flex-col items-centeer justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
       {!isPending && !message && (
         <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2">
           <h1 className="text-3xl font-semibold tracking-tight">
             Workout Generator
           </h1>
-          <p className="text-black/60 text-sm">
+          <p className="text-black/60 text-sm pb-4">
             Simply enter what you're thinking and receive your custom workout!
             <strong> Don't like it? Regenerate it! </strong>
           </p>
 
-          <RollingPrompts
-            texts={[
+          <MarqueePrompts
+            prompts={[
               "I want to train my legs",
               "I'm looking to burn fat",
               "I want to grow my arms",
               "I want to train upperbody",
               "I want to build overall strength",
             ]}
+            speed={25}
+          />
+          <MarqueePrompts
+            prompts={[
+              "Something to burn calories",
+              "I want to do a full body workout",
+              "Back and Biceps",
+              "I want to target my triceps",
+              "I want to feel stronger",
+            ]}
+            speed={50}
+            direction="right"
           />
         </div>
       )}
@@ -197,7 +204,6 @@ export default function PersonalWorkoutRoutineForm() {
         <textarea
           name="query"
           id="query"
-          ref={textareaRef}
           placeholder="What are you looking for today?"
           className="w-full h-fit px-4 py-4 pb-6 rounded-2xl border border-black/40 mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
           required

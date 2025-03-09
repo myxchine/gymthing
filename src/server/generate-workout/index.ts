@@ -52,11 +52,21 @@ export function getMuscleGroup(exerciseId: string): string | null {
 }
 
 // Helper function to get exercises from a muscle group
-function getExercisesFromMuscleGroup(muscleGroup: MuscleGroup): Exercise[] {
+export function getExercisesFromMuscleGroup(
+  muscleGroup: MuscleGroup
+): Exercise[] {
   const allExercises: Exercise[] = [];
 
   if (muscleGroup?.exercises && Array.isArray(muscleGroup.exercises)) {
-    allExercises.push(...muscleGroup.exercises);
+    const exercisesWithImportanceWeighting = muscleGroup.exercises.map(
+      (exercise) => {
+        return {
+          ...exercise,
+          importance: muscleGroup.importance * (exercise.importance || 1),
+        };
+      }
+    );
+    allExercises.push(...exercisesWithImportanceWeighting);
   }
 
   for (const key in muscleGroup) {
@@ -69,7 +79,18 @@ function getExercisesFromMuscleGroup(muscleGroup: MuscleGroup): Exercise[] {
 
       if (nestedGroup) {
         if (nestedGroup.exercises && Array.isArray(nestedGroup.exercises)) {
-          allExercises.push(...nestedGroup.exercises);
+          const exercisesWithImportanceWeighting = nestedGroup.exercises.map(
+            (exercise) => {
+              return {
+                ...exercise,
+                importance:
+                  nestedGroup.importance *
+                  muscleGroup.importance *
+                  (exercise.importance || 1),
+              };
+            }
+          );
+          allExercises.push(...exercisesWithImportanceWeighting);
         }
 
         for (const nestedKey in nestedGroup) {
@@ -84,7 +105,18 @@ function getExercisesFromMuscleGroup(muscleGroup: MuscleGroup): Exercise[] {
               deepNestedGroup?.exercises &&
               Array.isArray(deepNestedGroup.exercises)
             ) {
-              allExercises.push(...deepNestedGroup.exercises);
+              const exercisesWithImportanceWeighting =
+                deepNestedGroup.exercises.map((exercise) => {
+                  return {
+                    ...exercise,
+                    importance:
+                      deepNestedGroup.importance *
+                      nestedGroup.importance *
+                      muscleGroup.importance *
+                      (exercise.importance || 1),
+                  };
+                });
+              allExercises.push(...exercisesWithImportanceWeighting);
             }
           }
         }
@@ -111,6 +143,11 @@ export function generateWorkout(
   userPreferences: UserPreferences
 ): GeneratedWorkout {
   const workoutLength = workouts[userPreferences.workoutLength];
+
+  if (!workoutLength || !workoutLength.mainWorkout) {
+    throw new Error("Invalid workout length configuration.");
+  }
+
   const mainExercises: Exercise[] = [];
   const allMatchingExercises: Exercise[] = [];
 
@@ -119,27 +156,48 @@ export function generateWorkout(
     allMatchingExercises.push(...foundExercises);
   }
 
-  const availableExercises = allMatchingExercises.filter((exercise) =>
-    meetsUserCriteria(exercise, userPreferences)
+  const availableExercises: Exercise[] = allMatchingExercises.filter(
+    (exercise) => meetsUserCriteria(exercise, userPreferences)
   );
 
-  if (availableExercises.length > 0) {
-    const exercisePool = [...availableExercises];
-    const targetExerciseCount = workoutLength.mainWorkout.totalexercises;
+  if (availableExercises.length === 0) {
+    return { main: [] }; // Return empty workout if no valid exercises found
+  }
 
-    for (let i = 0; i < targetExerciseCount && exercisePool.length > 0; i++) {
-      const randomIndex = Math.floor(Math.random() * exercisePool.length);
-      mainExercises.push(exercisePool[randomIndex]);
-      exercisePool.splice(randomIndex, 1);
+  const targetExerciseCount: number = workoutLength.mainWorkout.totalexercises;
+
+  // Compute total importance weight
+  const totalWeight: number = availableExercises.reduce(
+    (sum, exercise) => sum + (exercise.importance || 1),
+    0
+  );
+
+  if (totalWeight <= 0) {
+    throw new Error("All exercises have zero or negative importance weights.");
+  }
+
+  const selectedExercises: Set<Exercise> = new Set();
+
+  while (
+    selectedExercises.size < targetExerciseCount &&
+    availableExercises.length > 0
+  ) {
+    let randomValue: number = Math.random() * totalWeight;
+    let cumulativeWeight: number = 0;
+
+    for (const exercise of availableExercises) {
+      cumulativeWeight += exercise.importance || 1;
+      if (randomValue < cumulativeWeight) {
+        selectedExercises.add(exercise);
+        break;
+      }
     }
   }
 
-  return {
-    main: mainExercises,
-  };
+  return { main: Array.from(selectedExercises) };
 }
 
-function findExercisesByFocusArea(
+export function findExercisesByFocusArea(
   focusArea: string,
   exercisesDatabase: ExercisesDatabase
 ): Exercise[] {

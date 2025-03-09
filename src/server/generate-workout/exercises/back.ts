@@ -12,6 +12,7 @@ export const backExercises: Exercise[] = [
     compound: true,
     unilateral: false,
     image: "back.jpg",
+    importance: 0.1,
   },
   {
     id: "lat-pulldown",
@@ -81,6 +82,7 @@ export const backExercises: Exercise[] = [
     compound: true,
     unilateral: false,
     image: "back1.jpg",
+    importance: 0.1,
   },
   {
     id: "face-pull",
@@ -123,6 +125,7 @@ export const backExercises: Exercise[] = [
     compound: false,
     unilateral: false,
     image: "upperback.jpg",
+    importance: 0.5,
   },
   {
     id: "superman-hold",
@@ -136,6 +139,7 @@ export const backExercises: Exercise[] = [
     bodyweight: true,
     compound: false,
     unilateral: false,
+    importance: 0.1,
   },
   {
     id: "single-arm-cable-row",

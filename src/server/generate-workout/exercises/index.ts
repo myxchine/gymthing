@@ -23,7 +23,7 @@ export const exercises: ExercisesDatabase = {
       biceps: { importance: 1, exercises: bicepExercises },
       forearms: { importance: 0.1, exercises: forearmExercises },
     },
-    shoulders: { importance: 1, exercises: shoulderExercises },
+    shoulders: { importance: 0.75, exercises: shoulderExercises },
   },
   lowerbody: {
     importance: 1,

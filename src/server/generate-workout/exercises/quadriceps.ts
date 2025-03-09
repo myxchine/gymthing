@@ -52,32 +52,6 @@ export const quadricepExercises: Exercise[] = [
     unilateral: false,
   },
   {
-    id: "calf-raise",
-    name: "Calf Raise",
-    description:
-      "An isolation movement where you raise your heels off the ground to target the calf muscles.",
-    muscleGroups: ["calves"],
-    difficulty: "beginner",
-    equipment: ["bodyweight", "dumbbells", "machine"],
-    can_train_at_home: true,
-    bodyweight: true,
-    compound: false,
-    unilateral: false,
-  },
-  {
-    id: "hamstring-curl",
-    name: "Hamstring Curl",
-    description:
-      "A machine-based movement where you curl your legs towards your body to target the hamstrings.",
-    muscleGroups: ["hamstrings"],
-    difficulty: "beginner",
-    equipment: ["leg curl machine"],
-    can_train_at_home: false,
-    bodyweight: false,
-    compound: false,
-    unilateral: false,
-  },
-  {
     id: "step-up",
     name: "Step-Up",
     description:

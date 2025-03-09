@@ -50,6 +50,7 @@ interface Exercise {
   unilateral: boolean;
   hasDuration?: boolean;
   image?: string;
+  importance?: number;
 }
 
 interface Workouts {

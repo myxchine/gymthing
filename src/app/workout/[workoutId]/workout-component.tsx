@@ -93,12 +93,11 @@ export default function WorkoutComponent({
 
 function sortExercises(exercises: Exercise[]): Exercise[] {
   return exercises.slice().sort((a, b) => {
-    if (a.compound && !b.compound) {
-      return -1;
-    }
-    if (!a.compound && b.compound) {
-      return 1;
-    }
-    return 0;
+    // Prioritize compound exercises
+    if (a.compound && !b.compound) return -1;
+    if (!a.compound && b.compound) return 1;
+
+    // If both are compound or both are not, sort by importance (higher importance first)
+    return (b.importance || 1) - (a.importance || 1);
   });
 }

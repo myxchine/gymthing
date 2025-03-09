@@ -11,6 +11,7 @@ export const tricepsExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: false,
+    importance: 0.5,
   },
   {
     id: "bench-dips",
@@ -24,6 +25,7 @@ export const tricepsExercises: Exercise[] = [
     bodyweight: true,
     compound: false,
     unilateral: false,
+    importance: 0.5,
   },
   {
     id: "close-grip-bench-press",
@@ -89,6 +91,7 @@ export const tricepsExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: false,
+    importance: 0.25,
   },
   {
     id: "kickbacks",

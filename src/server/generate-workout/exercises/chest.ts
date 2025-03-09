@@ -11,6 +11,7 @@ export const chestExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: false,
+    importance: 0.25,
   },
   {
     id: "bench-press",
@@ -102,5 +103,6 @@ export const chestExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: false,
+    importance: 0.25,
   },
 ];
