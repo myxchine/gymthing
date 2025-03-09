@@ -53,8 +53,9 @@ async function Account() {
           <h2 className="text-xl font-semibold">Your Workouts</h2>
           <p className="pill">Latest</p>
         </div>
-
-        <YourWorkouts session={session} />
+        <Suspense fallback={<Loading />}>
+          <YourWorkouts session={session} />
+        </Suspense>
       </div>
     </div>
   );
@@ -67,7 +68,11 @@ async function YourWorkouts({
 }) {
   const workouts = await getworkoutsByuser(session.user.id);
   if (workouts.length === 0) {
-    return <p className="w-full text-center py-8 text-sm text-black/60">No workouts found</p>;
+    return (
+      <p className="w-full text-center py-8 text-sm text-black/60">
+        No workouts found
+      </p>
+    );
   }
   return (
     <div className="flex flex-col gap-8 w-full">
