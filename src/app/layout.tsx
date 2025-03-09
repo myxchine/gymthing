@@ -37,7 +37,7 @@ export default function RootLayout({
           <main className="flex flex-col w-full max-w-[var(--site-width)] mx-auto">
             {children}
           </main>
-          <footer className="max-w-xl mx-auto p-6 flex flex-row items-center justify-center text-xs text-black/80">
+          <footer className="max-w-xl hidden mx-auto p-6  flex-row items-center justify-center text-xs text-black/80">
             ©2025 GymThing. All rights reserved.
           </footer>
           <Toaster position="top-center" />

@@ -8,7 +8,7 @@
   --accent: #ff0000;
   --site-width: 40rem;
   --header-height: 64px;
-  --footer-height: 64px;
+  --footer-height: 10px;
 }
 body {
   color: var(--foreground);
@@ -45,13 +45,13 @@ button {
   @apply px-3 py-1 rounded-full text-xs border border-black/60 text-black/60 w-fit;
 }
 .heading1 {
-  @apply text-2xl font-bold uppercase;
+  @apply text-2xl font-bold ;
 }
 .heading2 {
-  @apply text-xl font-bold uppercase;
+  @apply text-xl font-bold ;
 }
 .heading3 {
-  @apply text-lg font-bold uppercase;
+  @apply text-lg font-bold ;
 }
 
 .personal-workout-routine-form label {

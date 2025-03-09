@@ -1,10 +1,19 @@
 import { redirect } from "next/navigation";
 import GoogleButton from "./googlebutton";
 import { getServerAuthSession } from "@/server/auth";
-export default async function SignIn() {
+import { Loading } from "@/components/loading";
+import { Suspense } from "react";
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <SignIn />
+    </Suspense>
+  );
+}
+async function SignIn() {
   const session = await getServerAuthSession();
   if (session) {
-    return redirect("/home");
+    return redirect("/account");
   }
   return (
     <main className="flex flex-col items-center justify-center gap-6 my-24 p-8">
