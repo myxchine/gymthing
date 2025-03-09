@@ -38,6 +38,12 @@ button {
 .button-black {
   @apply bg-black text-white px-4 py-2 rounded-lg border border-black hover:bg-black/80;
 }
+.button-white {
+  @apply px-4 py-2 rounded-lg border border-black hover:bg-black/20;
+}
+.pill {
+  @apply px-3 py-1 rounded-full text-xs border border-black/60 text-black/60 w-fit;
+}
 .heading1 {
   @apply text-2xl font-bold uppercase;
 }

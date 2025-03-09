@@ -163,19 +163,16 @@ export async function getworkout(workoutId: string): Promise<workout | null> {
     return null;
   }
 }
-
-export async function newworkout({
-  workoutJson,
-  userId,
-}: {
-  workoutJson: any;
-  userId: string;
-}) {
+import { getServerAuthSession } from "@/server/auth";
+export async function newworkout({ workoutJson }: { workoutJson: any }) {
   try {
+    const session = await getServerAuthSession();
+
     const workout = await db
       .insert(workouts)
       .values({
         workoutJson,
+        userId: session?.user.id,
       })
       .returning();
     return {

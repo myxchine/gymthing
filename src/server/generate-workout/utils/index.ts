@@ -56,7 +56,6 @@ export async function generateUserWorkout({
 
     const returningWorkoutDatabaseEntry = await newworkout({
       workoutJson: databaseStoredGeneratedWorkout,
-      userId: "1",
     });
 
     if (

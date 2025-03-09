@@ -13,10 +13,9 @@ export default function Header() {
       <Link href="/" className="font-bold tracking-[0.5rem] text-xl">
         GYMTHING
       </Link>
-      <AccountIcon
-        className="w-6 h-6 cursor-pointer"
-        onClick={() => toast.success("Account feature coming soon")}
-      />
+      <Link href="/account">
+        <AccountIcon className="w-6 h-6 cursor-pointer" />
+      </Link>
     </header>
   );
 }
