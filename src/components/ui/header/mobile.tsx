@@ -35,7 +35,7 @@ export default function MobileMenu() {
       <div className={`flex flex-row items-center justify-between w-full   `}>
         <Buttons open={isOpen} setIsOpen={setIsOpen} />
         <Logo />
-        <div className="w-1/3  flex-col justify-end items-end flex">
+        <div className="w-1/3  flex-col justify-end items-end flex ml-2">
           <Suspense fallback={<SpinnerIcon className="size-6 animate-spin" />}>
             <AccountButton />
           </Suspense>
@@ -44,7 +44,7 @@ export default function MobileMenu() {
 
       {isOpen && (
         <>
-          <Nav className="flex flex-col gap-8 pb-6 pt-8 items-center justify-center px-4 w-fit mx-auto" />
+          <Nav className="flex flex-col gap-3 pb-8 pt-8 items-center justify-center px-4 w-fit mx-auto" />
         </>
       )}
     </div>
@@ -90,7 +90,7 @@ function AccountButton() {
   return (
     <Link
       href="/signin"
-      className="text-xs rounded-full px-3  h-[28px] flex items-center justify-center  bg-black text-white hover:bg-black/80"
+      className="text-[10px] rounded-full px-3   h-[26px] flex items-center justify-center  bg-black text-white hover:bg-black/80 font-semibold"
     >
       Sign Up
     </Link>

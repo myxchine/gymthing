@@ -7,9 +7,17 @@ import Link from "next/link";
 export default function Menu() {
   return (
     <div className=" md:flex hidden flex-row items-center justify-between  w-full    gap-8 bg-transparent">
-      <Logo />
-      <Nav className="flex flex-row gap-8 w-fit justify-center items-center " />
-      <AccountButton />
+      <div className="flex w-1/6 justify-start items-center">
+        <Logo />
+      </div>
+
+      <div className="flex w-2/6 justify-center items-center">
+        <Nav className="flex flex-row gap-8 w-fit justify-center items-center " />
+      </div>
+
+      <div className="flex w-1/6 justify-end items-center">
+        <AccountButton />
+      </div>
     </div>
   );
 }
@@ -26,7 +34,7 @@ async function AccountButton() {
   return (
     <Link
       href="/signin"
-      className="text-xs px-3 py-2 rounded w-fit bg-black text-white hover:bg-black/80"
+      className="text-xs px-3 h-[28px] flex items-center justify-center rounded-full w-fit bg-black font-semibold text-white hover:bg-black/80"
     >
       Sign Up
     </Link>
