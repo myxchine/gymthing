@@ -52,6 +52,7 @@ export async function generateUserWorkout({
       ...workout,
       ...routineOptions,
       focusAreas: aiRes.focusAreas,
+      createdAt: new Date(),
     };
 
     const returningWorkoutDatabaseEntry = await newworkout({

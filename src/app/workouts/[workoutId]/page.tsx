@@ -19,9 +19,8 @@ export default function WorkoutPage({
 async function Workout({ params }: { params: Promise<{ workoutId: string }> }) {
   const workoutId = (await params).workoutId;
   const workoutData = await getworkoutById(workoutId);
-  const workout = workoutData?.workoutJson as DatabaseStoredGeneratedWorkout;
-  if (!workout) {
+  if (!workoutData) {
     return notFound();
   }
-  return <WorkoutComponent workout={workout} />;
+  return <WorkoutComponent workoutData={workoutData} />;
 }

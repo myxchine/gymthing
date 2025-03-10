@@ -4,7 +4,6 @@ import { Loading } from "@/components/loading";
 import { generateUserWorkout } from "@/server/generate-workout/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import RollingPrompts from "./rolling-prompts";
 import MarqueePrompts from "./marquee";
 
 const fitnessGoalOptions: FitnessGoal[] = [
@@ -63,7 +62,7 @@ export default function PersonalWorkoutRoutineForm() {
       });
 
       if (result.status === "success") {
-        router.push(`/workout/${result.workoutId}`);
+        router.push(`/workouts/${result.workoutId}`);
       }
       if (result.status === "error") {
         throw new Error(result.message);
@@ -85,9 +84,9 @@ export default function PersonalWorkoutRoutineForm() {
   };
 
   return (
-    <div className="max-w-xl mx-auto  w-full flex flex-col items-centeer justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
+    <div className="max-w-6xl mx-auto  w-full flex flex-col items-center justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
       {!isPending && !message && (
-        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center w-full overflow-hidden">
+        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center  overflow-hidden max-w-xl mx-auto">
           <h1 className="text-3xl font-semibold tracking-tight">
             Workout Generator
           </h1>
@@ -120,7 +119,7 @@ export default function PersonalWorkoutRoutineForm() {
         </div>
       )}
       {(isPending || message) && (
-        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2">
+        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center p-2 max-w-xl mx-auto">
           {isPending && <Loading />}
           {message && <p className="w-full text-center text-sm">{message}</p>}
         </div>
@@ -205,7 +204,7 @@ export default function PersonalWorkoutRoutineForm() {
           name="query"
           id="query"
           placeholder="What are you looking for today?"
-          className="w-full h-fit px-4 py-4 pb-6 rounded-2xl border border-black/40 mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
+          className="w-full h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black/40 mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
           required
           value={formData.query}
           onChange={handleChange}

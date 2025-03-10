@@ -6,8 +6,9 @@
   --background: #ffffff;
   --foreground: #000;
   --accent: #ff0000;
-  --site-width: 40rem;
-  --header-height: 64px;
+  --site-width: 50rem;
+  --header-height: 56px;
+  --header-height-desktop: 84px;
   --footer-height: 0px;
 }
 body {

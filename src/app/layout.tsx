@@ -34,12 +34,13 @@ export default function RootLayout({
       <body className={`${interSans.variable} antialiased`}>
         <SessionProvider>
           <Header />
-          <main className="flex flex-col w-full max-w-[var(--site-width)] mx-auto">
+          <main
+            className="flex flex-col w-full max-w-[var(--site-width)] mx-auto"
+            id="site-main"
+          >
             {children}
           </main>
-          <footer className="max-w-xl hidden mx-auto p-6  flex-row items-center justify-center text-xs text-black/80">
-            ©2025 GymThing. All rights reserved.
-          </footer>
+      
           <Toaster position="top-center" />
         </SessionProvider>
       </body>

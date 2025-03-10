@@ -107,6 +107,7 @@ interface DatabaseStoredGeneratedWorkout extends GeneratedWorkout {
   fitnessLevel: FitnessLevel;
   workoutLength: WorkoutLength;
   place: Place;
+  createdAt: Date;
 }
 
 interface GeneratedExercise extends Exercise {

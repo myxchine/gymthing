@@ -6,12 +6,14 @@ import { generateUserWorkout } from "@/server/generate-workout/utils";
 import { Loading } from "@/components/loading";
 import { useRouter } from "next/navigation";
 import { RegenerateIcon } from "@/components/ui/icons";
-
+import { workout, workoutWithuserName } from "@/server/db/schema";
 export default function WorkoutComponent({
-  workout,
+  workoutData,
 }: {
-  workout: DatabaseStoredGeneratedWorkout;
+  workoutData: workout;
 }) {
+  const workout = workoutData.workoutJson as DatabaseStoredGeneratedWorkout;
+
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -31,7 +33,7 @@ export default function WorkoutComponent({
       });
 
       if (result.status === "success") {
-        router.push(`/workout/${result.workoutId}`);
+        router.push(`/workouts/${result.workoutId}`);
       }
       if (result.status === "error") {
         throw new Error(result.message);
@@ -45,7 +47,7 @@ export default function WorkoutComponent({
 
   if (isRegenerating) {
     return (
-      <div className="max-w-xl mx-auto p-4 pb-0 w-full flex flex-col items-center justify-center gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
+      <div className="max-w-2xl mx-auto p-4 pb-0 w-full flex flex-col items-center justify-center gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
         {message ? (
           <p className="w-full text-center text-sm">{message}</p>
         ) : (
@@ -56,13 +58,13 @@ export default function WorkoutComponent({
   }
 
   const mainWokrout = sortExercises(workout.main);
-
   return (
-    <div className="max-w-xl mx-auto p-6 w-full flex flex-col gap-8">
-      <div className="flex flex-col gap-3 w-full">
+    <div className=" p-6 w-full flex flex-col md:flex-row  gap-8 mb-24">
+      <div className="flex flex-col gap-3 w-full md:w-fit md:sticky md:top-[calc(var(--header-height-desktop)+1.5rem)] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
         <h1 className="text-3xl font-semibold tracking-tight">
           {workout.name}
         </h1>
+        <p className="text-xs ">Created {CalculateTimeAgo(new Date(workoutData.createdAt))}</p>
         <p className="text-black/60 text-sm">{workout.description}</p>
 
         <button
@@ -100,4 +102,26 @@ function sortExercises(exercises: Exercise[]): Exercise[] {
     // If both are compound or both are not, sort by importance (higher importance first)
     return (b.importance || 1) - (a.importance || 1);
   });
+}
+
+function CalculateTimeAgo(date: Date): string {
+  const today = new Date();
+  const seconds = Math.floor((today.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) {
+    return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) {
+    return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  }
+
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
