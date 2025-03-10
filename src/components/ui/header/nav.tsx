@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navigation = [
   { name: "Generate Workout", href: "/" },
-  { name: "Explore Workoouts", href: "/workouts" },
+  { name: "Explore Workouts", href: "/workouts" },
 ];
 
 export default function Nav({

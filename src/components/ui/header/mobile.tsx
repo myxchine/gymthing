@@ -23,11 +23,13 @@ export default function MobileMenu() {
   useEffect(() => {
     //const footer = document.getElementById("site-footer");
     const main = document.getElementById("site-main");
-    if (!main) {
+    const mobileNav = document.getElementById("mobile-nav");
+    if (!main || !mobileNav) {
       return;
     }
     //footer.style.display = isOpen ? "none" : "flex";
     main.style.display = isOpen ? "none" : "block";
+    mobileNav.style.display = isOpen ? "block" : "none";
   }, [isOpen]);
 
   return (
@@ -41,12 +43,6 @@ export default function MobileMenu() {
           </Suspense>
         </div>
       </div>
-
-      {isOpen && (
-        <>
-          <Nav className="flex flex-col gap-3 pb-8 pt-8 items-center justify-center px-4 w-fit mx-auto" />
-        </>
-      )}
     </div>
   );
 }
