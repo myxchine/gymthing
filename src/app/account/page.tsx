@@ -24,7 +24,7 @@ async function Account() {
   }
 
   return (
-    <div className=" p-6 w-full flex flex-col  gap-8 ">
+    <div className=" p-6 w-full flex flex-col  gap-8 mb-24">
       <div className="flex flex-row items-center justify-start gap-4  w-full md:my-8">
         {session.user.image ? (
           <img

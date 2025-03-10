@@ -59,8 +59,8 @@ export default function WorkoutComponent({
 
   const mainWokrout = sortExercises(workout.main);
   return (
-    <div className=" p-6 w-full flex flex-col md:flex-row  gap-8 mb-24">
-      <div className="flex flex-col gap-3 w-full md:w-fit md:sticky md:top-[calc(var(--header-height-desktop)+1.5rem)] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
+    <div className=" p-6 w-full flex flex-col md:flex-row  gap-8 mb-24 md:mt-8 md:gap-12">
+      <div className="flex flex-col gap-3 w-full md:w-[600px] md:sticky md:top-[calc(var(--header-height-desktop)+3.5rem)] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
         <h1 className="text-3xl font-semibold tracking-tight">
           {workout.name}
         </h1>
@@ -80,7 +80,6 @@ export default function WorkoutComponent({
           {mainWokrout.map((exercise: GeneratedExercise, index: number) => {
             return <ExerciseCard exercise={exercise} key={index} />;
           })}
-
           <div className="flex flex-row w-full gap-2 items-end">
             <div className=" mb-3 h-[2px] w-6 bg-black" />
             <h2 className="font-semibold text-xl px-2">

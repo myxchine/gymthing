@@ -13,7 +13,7 @@ export default function WorkoutPage() {
 async function Workout() {
   const workouts = await getworkouts();
   return (
-    <div className=" p-6 w-full flex flex-col gap-6">
+    <div className=" p-6 w-full flex flex-col gap-6 md:mt-8 mb-24">
       <div className="flex flex-col gap-3 w-full">
         <h1 className="text-4xl font-semibold tracking-tight">
           Explore Workouts

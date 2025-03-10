@@ -127,7 +127,7 @@ export default function PersonalWorkoutRoutineForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full p-4"
+        className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full p-4 md:p-8"
       >
         <label htmlFor="fitness-goal" className="hidden">
           I want to
