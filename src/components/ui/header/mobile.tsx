@@ -78,12 +78,22 @@ function Buttons({ open, setIsOpen }: { open: boolean; setIsOpen: any }) {
 function AccountButton() {
   const session = useSession();
   if (session.status === "loading") {
-    return <SpinnerIcon className="size-5 animate-spin" />;
+    return (
+      <Link
+        href="/account"
+        className="w-full pr-2 flex items-center justify-end"
+      >
+        <SpinnerIcon className="size-5 animate-spin" />
+      </Link>
+    );
   }
   if (session && session.status === "authenticated") {
     return (
-      <Link href="/account">
-        <AccountIcon className="size-5 cursor-pointer" />
+      <Link
+        href="/account"
+        className="w-full pr-2 flex items-center justify-end"
+      >
+        <AccountIcon className="size-5 cursor-pointer " />
       </Link>
     );
   }
