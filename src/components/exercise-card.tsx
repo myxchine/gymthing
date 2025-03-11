@@ -57,11 +57,11 @@ function RequiredEquipment({
   requiredEquipment: string[];
 }) {
   if (requiredEquipment.length === 0) {
-    return <div className="text-xs  text-black/60">No equipment required.</div>;
+    return <div className="text-xs  text-black/60 px-2">No equipment required.</div>;
   }
 
   return (
-    <div className="w-full flex flex-col gap-2 mt-4">
+    <div className="w-full flex flex-col gap-4  px-2">
       <h3>Equipment Required</h3>
       <div className="flex flex-wrap gap-2">
         {requiredEquipment.map((equipment) => (

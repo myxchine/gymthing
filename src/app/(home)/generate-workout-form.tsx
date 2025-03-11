@@ -39,6 +39,45 @@ export default function PersonalWorkoutRoutineForm() {
 
   const router = useRouter();
 
+  const handleSubmitSuggested = async (query: string) => {
+    setIsPending(true);
+    setMessage(null);
+
+    if (
+      !formData.fitnessGoal ||
+      !formData.fitnessLevel ||
+      !formData.workoutLength ||
+      !formData.place
+    ) {
+      setMessage("An unexpected error occurred. Please try again.");
+      setIsPending(false);
+      throw new Error(
+        "Failed to create your workout routine, please try again"
+      );
+    }
+
+    try {
+      const result = await generateUserWorkout({
+        fitnessGoal: formData.fitnessGoal,
+        fitnessLevel: formData.fitnessLevel,
+        workoutLength: formData.workoutLength,
+        place: formData.place,
+        query,
+      });
+
+      if (result.status === "success") {
+        router.push(`/workouts/${result.workoutId}`);
+      }
+      if (result.status === "error") {
+        throw new Error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Client-side error:", error);
+      setMessage("An unexpected error occurred. Please try again.");
+      setIsPending(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
@@ -108,6 +147,7 @@ export default function PersonalWorkoutRoutineForm() {
               "I want to build overall strength",
             ]}
             speed={40}
+            handleSubmitSuggested={handleSubmitSuggested}
           />
           <MarqueePrompts
             prompts={[
@@ -119,6 +159,7 @@ export default function PersonalWorkoutRoutineForm() {
             ]}
             speed={70}
             direction="right"
+            handleSubmitSuggested={handleSubmitSuggested}
           />
         </div>
       )}
@@ -142,7 +183,11 @@ export default function PersonalWorkoutRoutineForm() {
             className=""
           >
             {fitnessGoalOptions.map((fitnessGoal) => (
-              <option key={fitnessGoal} value={fitnessGoal}>
+              <option
+                key={fitnessGoal}
+                value={fitnessGoal}
+                className="overflow-ellipsis"
+              >
                 {fitnessGoal}
               </option>
             ))}

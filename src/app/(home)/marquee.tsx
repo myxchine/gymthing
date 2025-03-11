@@ -5,10 +5,12 @@ export default function MarqueePrompts({
   prompts,
   speed,
   direction = "left",
+  handleSubmitSuggested,
 }: {
   prompts: string[];
   speed: number;
   direction?: "left" | "right";
+  handleSubmitSuggested: (query: string) => void;
 }) {
   const [marqueeWidth, setMarqueeWidth] = useState(0);
 
@@ -34,7 +36,7 @@ export default function MarqueePrompts({
         style={{ minWidth: marqueeWidth * 2 }}
       >
         {[...prompts, ...prompts].map((prompt, index) => (
-          <p key={index} className="text-sm px-3 py-2 rounded bg-black/5">
+          <p key={index} className="text-sm px-3 py-2 rounded bg-black/5" onClick={() => handleSubmitSuggested(prompt)}>
             {prompt}
           </p>
         ))}

@@ -62,3 +62,8 @@ button {
 .personal-workout-routine-form select {
   @apply px-4 py-2  rounded-xl border border-black text-black  text-center text-xs overflow-ellipsis;
 }
+
+.personal-workout-routine-form select {
+  @apply text-center w-full overflow-ellipsis;
+}
+
