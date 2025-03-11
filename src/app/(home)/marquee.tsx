@@ -26,7 +26,7 @@ export default function MarqueePrompts({
   }, [prompts]);
 
   return (
-    <div className="overflow-hidden whitespace-nowrap max-w-xl mx-auto">
+    <div className="overflow-hidden whitespace-nowrap max-w-xl mx-auto relative w-full">
       <motion.div
         className="flex gap-3"
         animate={{
@@ -36,11 +36,12 @@ export default function MarqueePrompts({
         style={{ minWidth: marqueeWidth * 2 }}
       >
         {[...prompts, ...prompts].map((prompt, index) => (
-          <p key={index} className="text-sm px-3 py-2 rounded-full bg-black/5 text-black/60" onClick={() => handleSubmitSuggested(prompt)}>
+          <p key={index} className="text-sm px-4 py-2 rounded-full bg-black/5 text-black/60 cursor-pointer hover:bg-black/10" onClick={() => handleSubmitSuggested(prompt)}>
             {prompt}
           </p>
         ))}
       </motion.div>
+      <div className="absolute top-0 left-0 left-to-right-gradient h-full w-full z-[100] pointer-events-none"/>
     </div>
   );
 }

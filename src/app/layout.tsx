@@ -36,7 +36,7 @@ export default function RootLayout({
         <SessionProvider>
           <Header />
           <div className="w-full hidden md:hidden p-4 pt-2" id="mobile-nav">
-            <Nav className="flex flex-col gap-3 p-8 py-6 items-center justify-center px-4  mx-auto bg-black/5 rounded-2xl w-full" />
+            <Nav className="flex flex-col gap-3 p-8 py-6 items-center justify-center px-4  mx-auto   w-full" />
           </div>
           <main
             className="flex flex-col w-full max-w-[var(--site-width)] mx-auto"

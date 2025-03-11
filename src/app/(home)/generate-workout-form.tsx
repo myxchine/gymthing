@@ -180,14 +180,15 @@ export default function PersonalWorkoutRoutineForm() {
             id="fitnessGoal"
             value={formData.fitnessGoal}
             onChange={handleChange}
-            className="max-w-fit"
+            className="max-w-full md:max-w-fit !text-center"
+            style={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
           >
             {fitnessGoalOptions.map((fitnessGoal) => (
-              <option
-                key={fitnessGoal}
-                value={fitnessGoal}
-                className="overflow-ellipsis"
-              >
+              <option key={fitnessGoal} value={fitnessGoal} >
                 {fitnessGoal}
               </option>
             ))}

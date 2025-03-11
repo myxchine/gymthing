@@ -7,7 +7,7 @@
   --foreground: #000;
   --accent: #ff0000;
   --site-width: 50rem;
-  --header-height: 64px;
+  --header-height: 72px;
   --header-height-desktop: 84px;
   --footer-height: 0px;
 }
@@ -46,13 +46,13 @@ button {
   @apply px-3 py-1 rounded-full text-xs border border-black/60 text-black/60 w-fit;
 }
 .heading1 {
-  @apply text-2xl font-bold ;
+  @apply text-2xl font-bold;
 }
 .heading2 {
-  @apply text-xl font-bold ;
+  @apply text-xl font-bold;
 }
 .heading3 {
-  @apply text-lg font-bold ;
+  @apply text-lg font-bold;
 }
 
 .personal-workout-routine-form label {
@@ -60,10 +60,19 @@ button {
 }
 
 .personal-workout-routine-form select {
-  @apply px-4 py-2  rounded-full border border-black text-black  text-center text-xs md:text-base overflow-ellipsis cursor-pointer;
+  @apply px-4 py-2  rounded-full border border-black text-black  text-center text-xs md:text-base  cursor-pointer;
 }
 
-.personal-workout-routine-form select {
-  @apply text-center  overflow-ellipsis;
-}
 
+
+.left-to-right-gradient {
+  background: linear-gradient(
+    to right,
+    #ffffff 0%,
+    #ffffff00 10%,
+    #ffffff00 40%,
+    #ffffff 50%
+  );
+  background-size: 200% 100%;
+  animation: gradient 15s ease infinite;
+}
