@@ -29,7 +29,7 @@ export default function AccountButton() {
   return (
     <Link
       href="/signin"
-      className="text-[10px] rounded-full px-3   h-[26px] flex items-center justify-center  bg-black text-white hover:bg-black/80 font-semibold"
+      className="text-[10px] md:text-xs rounded-full px-3   h-[26px] md:h-[28px] flex items-center justify-center  bg-black text-white hover:bg-black/80 font-semibold"
     >
       Sign Up
     </Link>

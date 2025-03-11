@@ -60,10 +60,10 @@ button {
 }
 
 .personal-workout-routine-form select {
-  @apply px-4 py-2  rounded-xl border border-black text-black  text-center text-xs overflow-ellipsis;
+  @apply px-4 py-2  rounded-full border border-black text-black  text-center text-xs md:text-base overflow-ellipsis cursor-pointer;
 }
 
 .personal-workout-routine-form select {
-  @apply text-center w-full overflow-ellipsis;
+  @apply text-center  overflow-ellipsis;
 }
 

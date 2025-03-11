@@ -129,11 +129,11 @@ export default function PersonalWorkoutRoutineForm() {
   return (
     <div className="max-w-6xl mx-auto  w-full flex flex-col items-center justify-end gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
       {!isPending && !message && (
-        <div className="flex flex-col gap-3 w-full h-full items-center justify-center text-center  overflow-hidden max-w-xl mx-auto">
-          <h1 className="text-3xl font-semibold tracking-tight">
+        <div className="flex flex-col gap-3 md:gap-5 w-full h-full items-center justify-center text-center  overflow-hidden max-w-xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
             Workout Generator
           </h1>
-          <p className="text-black/60 text-sm pb-4">
+          <p className=" text-sm pb-4 md:text-base">
             Simply enter what you're thinking and receive your custom workout!
             <strong> Don't like it? Regenerate it! </strong>
           </p>
@@ -174,13 +174,13 @@ export default function PersonalWorkoutRoutineForm() {
         onSubmit={handleSubmit}
         className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full p-4 md:p-8"
       >
-        <div className="flex flex-row gap-2 pb-2 w-full items-center justify-center overflow-hidden">
+        <div className="flex flex-row gap-2 pb-2 w-full items-center justify-start overflow-hidden">
           <select
             name="fitnessGoal"
             id="fitnessGoal"
             value={formData.fitnessGoal}
             onChange={handleChange}
-            className=""
+            className="max-w-fit"
           >
             {fitnessGoalOptions.map((fitnessGoal) => (
               <option
@@ -249,7 +249,7 @@ export default function PersonalWorkoutRoutineForm() {
           name="query"
           id="query"
           placeholder="What you want to focus on today?"
-          className="w-full h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
+          className="w-full md:text-lg h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
           required
           value={formData.query}
           onChange={handleChange}
@@ -259,8 +259,8 @@ export default function PersonalWorkoutRoutineForm() {
           type="submit"
           className={
             isPending || formData.query === ""
-              ? "rounded-full bg-black text-white border px-6 py-2  w-full !cursor-not-allowed"
-              : "rounded-full bg-black text-white border px-6 py-2 hover:bg-white hover:text-black w-full "
+              ? "rounded-full bg-black text-white border px-6 py-2  w-full !cursor-not-allowed md:text-lg"
+              : "rounded-full bg-black text-white border px-6 py-2 hover:bg-white hover:text-black w-full md:text-lg"
           }
           disabled={isPending || formData.query === ""}
         >

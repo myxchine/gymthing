@@ -36,7 +36,7 @@ export default function MarqueePrompts({
         style={{ minWidth: marqueeWidth * 2 }}
       >
         {[...prompts, ...prompts].map((prompt, index) => (
-          <p key={index} className="text-sm px-3 py-2 rounded bg-black/5" onClick={() => handleSubmitSuggested(prompt)}>
+          <p key={index} className="text-sm px-3 py-2 rounded-full bg-black/5 text-black/60" onClick={() => handleSubmitSuggested(prompt)}>
             {prompt}
           </p>
         ))}
