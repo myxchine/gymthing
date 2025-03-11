@@ -24,6 +24,7 @@ export const shoulderExercises: Exercise[] = [
     bodyweight: false,
     compound: false,
     unilateral: false,
+    importance: 1.25,
   },
   {
     id: "front-raise",
@@ -37,6 +38,7 @@ export const shoulderExercises: Exercise[] = [
     bodyweight: false,
     compound: false,
     unilateral: false,
+    importance: 0.25,
   },
   {
     id: "rear-delt-fly",

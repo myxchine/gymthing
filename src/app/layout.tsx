@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     default: "GymThing",
     template: "%s - GymThing",
   },
-  description: "Your very own free personal trainer.",
+  description: "Generate bespoke workouts with a simple prompt.",
   icons: {
     icon: "/favicon.ico",
   },

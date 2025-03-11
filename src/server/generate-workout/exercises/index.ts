@@ -38,29 +38,29 @@ export const exercises: ExercisesDatabase = {
 export const workouts: Workouts = {
   shortlength: {
     mainWorkout: {
-      totalexercises: 6,
+      totalexercises: 3,
       compoundexercises: 3,
-      totalreps: 30,
-      totalsets: 3,
-      duration: 15,
+      totalreps: 90,
+      totalsets: 9,
+      duration: 25,
     },
   },
   mediumlength: {
     mainWorkout: {
-      totalexercises: 6,
+      totalexercises: 4,
       compoundexercises: 3,
-      totalreps: 90,
-      totalsets: 9,
-      duration: 30,
+      totalreps: 160,
+      totalsets: 16,
+      duration: 45,
     },
   },
   longlength: {
     mainWorkout: {
-      totalexercises: 10,
+      totalexercises: 6,
       compoundexercises: 3,
-      totalreps: 150,
-      totalsets: 15,
-      duration: 45,
+      totalreps: 240,
+      totalsets: 24,
+      duration: 65,
     },
   },
 };

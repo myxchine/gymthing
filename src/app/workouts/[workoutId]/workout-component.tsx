@@ -60,12 +60,30 @@ export default function WorkoutComponent({
   const mainWokrout = sortExercises(workout.main);
   return (
     <div className=" p-6 w-full flex flex-col md:flex-row  gap-8 mb-24 md:mt-8 md:gap-12">
-      <div className="flex flex-col gap-3 w-full md:w-[600px] md:sticky md:top-[calc(var(--header-height-desktop)+3.5rem)] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {workout.name}
-        </h1>
-        <p className="text-xs ">Created {CalculateTimeAgo(new Date(workoutData.createdAt))}</p>
-        <p className="text-black/60 text-sm">{workout.description}</p>
+      <div className="flex flex-col gap-4 w-full md:w-[600px] md:sticky md:top-[calc(var(--header-height-desktop)+3.5rem)] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
+        <div className="flex flex-col gap-1 w-full">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {workout.name}
+          </h1>
+          <p className="text-black/60 text-sm">{workout.description}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 items-center justify-start">
+          <p     className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
+            {workout.workoutLength === "shortlength"
+              ? "20 - 30"
+              : workout.workoutLength === "mediumlength"
+              ? "40 - 50"
+              : "60 - 70"}{" "}
+            minutes
+          </p>
+          <p     className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
+            <span className="capitalize">{workout.place}</span> workout
+          </p>
+          <p     className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
+            Created {CalculateTimeAgo(new Date(workoutData.createdAt))}
+          </p>
+        </div>
 
         <button
           onClick={handleRegenerate}
@@ -106,7 +124,9 @@ function sortExercises(exercises: Exercise[]): Exercise[] {
 function CalculateTimeAgo(date: Date): string {
   const today = new Date();
   const seconds = Math.floor((today.getTime() - date.getTime()) / 1000);
-
+  if (seconds < 29) {
+    return `Now`;
+  }
   if (seconds < 60) {
     return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
   }

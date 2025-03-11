@@ -99,7 +99,7 @@ export const chestExercises: Exercise[] = [
     muscleGroups: ["chest", "triceps", "shoulders"],
     difficulty: "intermediate",
     equipment: ["dip bars"],
-    can_train_at_home: false,
+    can_train_at_home: true,
     bodyweight: true,
     compound: true,
     unilateral: false,

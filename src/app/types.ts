@@ -14,13 +14,13 @@ type FitnessGoal =
   | `Build Strength & Muscle`
   | `Lose Weight & Tone Body`
   | `Improve Energy Levels & Feel Better`;
-type WorkoutLength = "15" | "30" | "45";
+type WorkoutLength = "shortlength" | "mediumlength" | "longlength";
 type FitnessLevel =
   | "I'm completely new"
   | "I kinda know what I'm doing"
   | "I know what's up";
 
-type Place = "Home" | "Gym";
+type Place = "home" | "gym";
 
 interface MuscleGroup {
   importance: number;
@@ -88,8 +88,8 @@ type DeepKeys<T> = T extends object
 type FocusArea = DeepKeys<ExercisesDatabase>;
 
 interface UserPreferences {
-  workoutLength: "shortlength" | "mediumlength" | "longlength";
-  goals: "strength" | "endurance" | "weight loss";
+  workoutLength: WorkoutLength;
+  goals: FitnessGoal;
   place: "home" | "gym";
   focusAreas: FocusArea[];
 }

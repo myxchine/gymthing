@@ -44,6 +44,34 @@ export default function ExerciseCard({
             Pick a weight that takes you to failure on each set
           </p>
         )}
+
+        <RequiredEquipment requiredEquipment={exercise.equipment} />
+      </div>
+    </div>
+  );
+}
+
+function RequiredEquipment({
+  requiredEquipment,
+}: {
+  requiredEquipment: string[];
+}) {
+  if (requiredEquipment.length === 0) {
+    return <div className="text-xs  text-black/60">No equipment required.</div>;
+  }
+
+  return (
+    <div className="w-full flex flex-col gap-2 mt-4">
+      <h3>Equipment Required</h3>
+      <div className="flex flex-wrap gap-2">
+        {requiredEquipment.map((equipment) => (
+          <p
+            key={equipment}
+            className="px-3  capitalize py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit"
+          >
+            {equipment}
+          </p>
+        ))}
       </div>
     </div>
   );
@@ -55,7 +83,7 @@ function ExerciseMuscleGroups({ muscleGroups }: { muscleGroups: string[] }) {
       {muscleGroups.map((muscleGroup) => (
         <p
           key={muscleGroup}
-          className="px-3  capitalize py-1 rounded-full bg-black/10 text-xs text-black/60  w-fit"
+          className="px-3  capitalize py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit"
         >
           {muscleGroup}
         </p>

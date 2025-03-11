@@ -19,18 +19,22 @@ const fitnessLevelOptions: FitnessLevel[] = [
   "I know what's up",
 ];
 
-const workoutLengthOptions: WorkoutLength[] = ["15", "30", "45"];
-const placeOptions: Place[] = ["Gym", "Home"];
+const workoutLengthOptions: WorkoutLength[] = [
+  "shortlength",
+  "mediumlength",
+  "longlength",
+];
+const placeOptions: Place[] = ["gym", "home"];
 
 export default function PersonalWorkoutRoutineForm() {
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [formData, setFormData] = useState({
-    fitnessGoal: fitnessGoalOptions[1], // Default value
-    fitnessLevel: fitnessLevelOptions[1],
-    workoutLength: workoutLengthOptions[2],
-    place: placeOptions[0],
-    query: "",
+    fitnessGoal: fitnessGoalOptions[1] as FitnessGoal,
+    fitnessLevel: fitnessLevelOptions[1] as FitnessLevel,
+    workoutLength: workoutLengthOptions[1] as WorkoutLength,
+    place: placeOptions[0] as Place,
+    query: "" as string,
   });
 
   const router = useRouter();
@@ -129,82 +133,78 @@ export default function PersonalWorkoutRoutineForm() {
         onSubmit={handleSubmit}
         className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full p-4 md:p-8"
       >
-        <label htmlFor="fitness-goal" className="hidden">
-          I want to
-        </label>
-        <select
-          name="fitness-goal"
-          id="fitness-goal"
-          value={formData.fitnessGoal}
-          onChange={handleChange}
-          className="hidden"
-        >
-          {fitnessGoalOptions.map((fitnessGoal) => (
-            <option key={fitnessGoal} value={fitnessGoal}>
-              {fitnessGoal}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-row gap-2 pb-2 w-full items-center justify-center overflow-hidden">
+          <select
+            name="fitnessGoal"
+            id="fitnessGoal"
+            value={formData.fitnessGoal}
+            onChange={handleChange}
+            className=""
+          >
+            {fitnessGoalOptions.map((fitnessGoal) => (
+              <option key={fitnessGoal} value={fitnessGoal}>
+                {fitnessGoal}
+              </option>
+            ))}
+          </select>
 
-        <label htmlFor="fitness-level" className="hidden">
-          How deep are you into fitness
-        </label>
-        <select
-          name="fitness-level"
-          id="fitness-level"
-          value={formData.fitnessLevel}
-          onChange={handleChange}
-          className="hidden"
-        >
-          {fitnessLevelOptions.map((fitnessLevel) => (
-            <option key={fitnessLevel} value={fitnessLevel}>
-              {fitnessLevel}
-            </option>
-          ))}
-        </select>
+          <select
+            name="fitnessLevel"
+            id="fitnessLevel"
+            value={formData.fitnessLevel}
+            onChange={handleChange}
+            className="!hidden"
+          >
+            {fitnessLevelOptions.map((fitnessLevel) => (
+              <option key={fitnessLevel} value={fitnessLevel}>
+                {fitnessLevel}
+              </option>
+            ))}
+          </select>
 
-        <label htmlFor="workout-length" className="hidden">
-          I want to workout for
-        </label>
-        <select
-          name="workout-length"
-          id="workout-length"
-          value={formData.workoutLength}
-          onChange={handleChange}
-          className="hidden"
-        >
-          {workoutLengthOptions.map((workoutLength) => (
-            <option key={workoutLength} value={workoutLength}>
-              {workoutLength} minutes
-            </option>
-          ))}
-        </select>
+          <select
+            name="workoutLength"
+            id="workoutLength"
+            value={formData.workoutLength}
+            onChange={handleChange}
+            className="w-fit max-w-fit"
+          >
+            {workoutLengthOptions.map((workoutLength) => (
+              <option key={workoutLength} value={workoutLength}>
+                {workoutLength === "shortlength"
+                  ? "20 - 30"
+                  : workoutLength === "mediumlength"
+                  ? "40 - 50"
+                  : "60 - 70"}{" "}
+                min
+              </option>
+            ))}
+          </select>
 
-        <label htmlFor="place" className="hidden">
-          I'm working out at
-        </label>
-        <select
-          name="place"
-          id="place"
-          value={formData.place}
-          onChange={handleChange}
-          className="hidden"
-        >
-          {placeOptions.map((place) => (
-            <option key={place} value={place}>
-              {place}
-            </option>
-          ))}
-        </select>
+          <select
+            name="place"
+            id="place"
+            value={formData.place}
+            onChange={handleChange}
+            className="capitalize w-fit max-w-fit"
+          >
+            {placeOptions.map((place) => (
+              <option
+                key={place}
+                value={place}
+                className="flex flex-row gap-8 justify-between items-center"
+              >
+                At {place}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <label htmlFor="query" className="hidden">
-          What do you want to train?
-        </label>
         <textarea
           name="query"
           id="query"
-          placeholder="What are you looking for today?"
-          className="w-full h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black/40 mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
+          placeholder="What you want to focus on today?"
+          className="w-full h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
           required
           value={formData.query}
           onChange={handleChange}

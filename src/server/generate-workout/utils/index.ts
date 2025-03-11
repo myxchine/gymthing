@@ -38,14 +38,14 @@ export async function generateUserWorkout({
 
     console.log(aiRes);
 
-    const UserPreferencesMock: UserPreferences = {
-      workoutLength: "shortlength",
-      goals: "strength",
-      place: "gym",
+    const UserPreferences: UserPreferences = {
+      workoutLength,
+      goals: fitnessGoal,
+      place: place,
       focusAreas: aiRes.focusAreas,
     };
 
-    const workout = generateWorkout(UserPreferencesMock);
+    const workout = generateWorkout(UserPreferences);
     const databaseStoredGeneratedWorkout: DatabaseStoredGeneratedWorkout = {
       name: aiRes.name,
       description: aiRes.description,
