@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getMuscleGroup } from "@/server/generate-workout";
+import { getMuscleGroup } from "@/server/generate-workout/utils/helpers";
 
 export default function ExerciseCard({
   exercise,

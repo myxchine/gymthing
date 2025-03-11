@@ -116,3 +116,10 @@ interface GeneratedExercise extends Exercise {
   duration?: number;
   rest?: number;
 }
+
+
+interface FocusAreaExercises {
+  focusArea: string;
+  exercises: Exercise[];
+  importance: number;
+}

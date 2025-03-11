@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Loading } from "@/components/loading";
 import { Suspense } from "react";
 import WorkoutList from "@/components/workout-list";
+
+export const dynamic = "force-dynamic";
+
 export default function WorkoutPage() {
   return (
     <Suspense fallback={<Loading />}>
