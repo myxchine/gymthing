@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import Nav from "./nav";
-import {
-  MenuIcon,
-  CloseIcon,
-  AccountIcon,
-  SpinnerIcon,
-} from "@/components/ui/icons";
+import { useState, useEffect } from "react";
+import { MenuIcon, CloseIcon } from "@/components/ui/icons";
 import Logo from "@/components/ui/logo";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
+import AccountButton from "./account-button";
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -21,13 +14,11 @@ export default function MobileMenu() {
   }, [pathname]);
 
   useEffect(() => {
-    //const footer = document.getElementById("site-footer");
     const main = document.getElementById("site-main");
     const mobileNav = document.getElementById("mobile-nav");
     if (!main || !mobileNav) {
       return;
     }
-    //footer.style.display = isOpen ? "none" : "flex";
     main.style.display = isOpen ? "none" : "block";
     mobileNav.style.display = isOpen ? "block" : "none";
   }, [isOpen]);
@@ -38,9 +29,7 @@ export default function MobileMenu() {
         <Buttons open={isOpen} setIsOpen={setIsOpen} />
         <Logo />
         <div className="w-1/3  flex-col justify-end items-end flex ml-2">
-          <Suspense fallback={<SpinnerIcon className="size-6 animate-spin" />}>
-            <AccountButton />
-          </Suspense>
+          <AccountButton />
         </div>
       </div>
     </div>
@@ -68,37 +57,5 @@ function Buttons({ open, setIsOpen }: { open: boolean; setIsOpen: any }) {
         </button>
       )}
     </>
-  );
-}
-
-function AccountButton() {
-  const session = useSession();
-  if (session.status === "loading") {
-    return (
-      <Link
-        href="/account"
-        className="w-full pr-2 flex items-center justify-end"
-      >
-        <SpinnerIcon className="size-5 animate-spin" />
-      </Link>
-    );
-  }
-  if (session && session.status === "authenticated") {
-    return (
-      <Link
-        href="/account"
-        className="w-full pr-2 flex items-center justify-end"
-      >
-        <AccountIcon className="size-5 cursor-pointer " />
-      </Link>
-    );
-  }
-  return (
-    <Link
-      href="/signin"
-      className="text-[10px] rounded-full px-3   h-[26px] flex items-center justify-center  bg-black text-white hover:bg-black/80 font-semibold"
-    >
-      Sign Up
-    </Link>
   );
 }
