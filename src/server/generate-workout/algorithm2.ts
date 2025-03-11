@@ -107,6 +107,7 @@ export function generateWorkout(
   return { main: selectedExercises };
 }
 
+
 function selectWeightedExercises(
   exercises: Exercise[],
   count: number

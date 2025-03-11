@@ -91,7 +91,7 @@ export const tricepsExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: false,
-    importance: 0.25,
+    importance: 0.1,
   },
   {
     id: "kickbacks",

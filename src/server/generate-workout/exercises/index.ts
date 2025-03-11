@@ -12,18 +12,18 @@ import { absExercises } from "./abs";
 import { cardioExercises } from "./cardio";
 
 export const exercises: ExercisesDatabase = {
-  cardio: { importance: 1, exercises: cardioExercises },
+  cardio: { importance: 0.1, exercises: cardioExercises },
   upperbody: {
     importance: 1,
     back: { importance: 1, exercises: backExercises },
     chest: { importance: 1, exercises: chestExercises },
     arms: {
-      importance: 1,
+      importance: 0.5,
       triceps: { importance: 1, exercises: tricepsExercises },
       biceps: { importance: 1, exercises: bicepExercises },
       forearms: { importance: 0.1, exercises: forearmExercises },
     },
-    shoulders: { importance: 0.75, exercises: shoulderExercises },
+    shoulders: { importance: 0.5, exercises: shoulderExercises },
   },
   lowerbody: {
     importance: 1,
@@ -32,7 +32,7 @@ export const exercises: ExercisesDatabase = {
     glutes: { importance: 0.75, exercises: gluteExercises },
     calves: { importance: 0.1, exercises: calfExercises },
   },
-  abs: { importance: 0.5, exercises: absExercises },
+  abs: { importance: 0.1, exercises: absExercises },
 };
 
 export const workouts: Workouts = {

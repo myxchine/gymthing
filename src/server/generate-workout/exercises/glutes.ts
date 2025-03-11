@@ -65,6 +65,7 @@ export const gluteExercises: Exercise[] = [
     bodyweight: true,
     compound: true,
     unilateral: true,
+    importance: 0.1,
   },
   {
     id: "bulgarian-split-squat",
