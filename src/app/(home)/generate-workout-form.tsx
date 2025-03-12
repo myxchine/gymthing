@@ -172,15 +172,25 @@ export default function PersonalWorkoutRoutineForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="personal-workout-routine-form flex flex-col gap-1 items-center justify-center w-full p-4 md:p-8"
+        className="personal-workout-routine-form flex flex-col gap-2 md:gap-3 items-center justify-center w-full p-4 md:p-8"
       >
-        <div className="flex flex-row gap-2 pb-2 w-full items-center justify-start overflow-hidden">
+        <textarea
+          name="query"
+          id="query"
+          placeholder="What you want to focus on today?"
+          className="w-full md:text-lg h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black  placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
+          required
+          value={formData.query}
+          onChange={handleChange}
+        />
+
+        <div className="flex flex-row gap-1  w-full items-center justify-start overflow-hidden">
           <select
             name="fitnessGoal"
             id="fitnessGoal"
             value={formData.fitnessGoal}
             onChange={handleChange}
-            className="max-w-full md:max-w-fit !text-center"
+            className="max-w-full  !text-center md:w-[60%]"
             style={{
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -188,7 +198,7 @@ export default function PersonalWorkoutRoutineForm() {
             }}
           >
             {fitnessGoalOptions.map((fitnessGoal) => (
-              <option key={fitnessGoal} value={fitnessGoal} >
+              <option key={fitnessGoal} value={fitnessGoal}>
                 {fitnessGoal}
               </option>
             ))}
@@ -213,7 +223,7 @@ export default function PersonalWorkoutRoutineForm() {
             id="workoutLength"
             value={formData.workoutLength}
             onChange={handleChange}
-            className="w-fit max-w-fit"
+            className="w-fit max-w-fit md:w-[20%] md:max-w-[20%]"
           >
             {workoutLengthOptions.map((workoutLength) => (
               <option key={workoutLength} value={workoutLength}>
@@ -232,29 +242,19 @@ export default function PersonalWorkoutRoutineForm() {
             id="place"
             value={formData.place}
             onChange={handleChange}
-            className="capitalize w-fit max-w-fit"
+            className="capitalize w-fit max-w-fit md:w-[20%] md:max-w-[20%]"
           >
             {placeOptions.map((place) => (
               <option
                 key={place}
                 value={place}
-                className="flex flex-row gap-8 justify-between items-center"
+                className="flex flex-row gap-8 justify-between items-center "
               >
                 At {place}
               </option>
             ))}
           </select>
         </div>
-
-        <textarea
-          name="query"
-          id="query"
-          placeholder="What you want to focus on today?"
-          className="w-full md:text-lg h-fit max-h-fit min-h-fit px-4 py-4 pb-6 rounded-2xl border border-black mb-2 placeholder:text-black/50 flex flex-col  focus:ring-2 focus:ring-black focus:outline-none"
-          required
-          value={formData.query}
-          onChange={handleChange}
-        />
 
         <button
           type="submit"

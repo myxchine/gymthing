@@ -5,7 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #000;
-  --accent: #ff0000;
+  --accent: #000;
   --site-width: 50rem;
   --header-height: 72px;
   --header-height-desktop: 84px;
@@ -33,6 +33,7 @@ select {
   width: 100%;
   box-sizing: border-box;
 }
+
 button {
   @apply cursor-pointer;
 }
@@ -54,16 +55,13 @@ button {
 .heading3 {
   @apply text-lg font-bold;
 }
-
 .personal-workout-routine-form label {
   @apply w-full;
 }
 
 .personal-workout-routine-form select {
-  @apply px-4 py-2  rounded-full border border-black text-black  text-center text-xs md:text-base  cursor-pointer;
+  @apply px-4 py-2  rounded-full border border-black text-white  text-center text-xs md:text-base  cursor-pointer bg-black;
 }
-
-
 
 .left-to-right-gradient {
   background: linear-gradient(
