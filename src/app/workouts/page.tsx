@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-import { WorkoutListSkeleton } from "@/components/workout-list";
 import Workouts from "./workouts";
 
 export default function WorkoutPage() {
@@ -13,9 +11,7 @@ export default function WorkoutPage() {
           Workouts created by you and others can be found here.
         </p>
       </div>
-      <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
-        <Workouts />
-      </Suspense>
+      <Workouts />
     </div>
   );
 }
