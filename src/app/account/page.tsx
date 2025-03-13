@@ -6,7 +6,7 @@ import { getworkoutsByuser } from "@/server/db/utils";
 import { Loading } from "@/components/loading";
 import { getServerAuthSession } from "@/server/auth";
 import { Suspense } from "react";
-import WorkoutList from "@/components/workout-list";
+import WorkoutList, { WorkoutListSkeleton } from "@/components/workout-list";
 
 export default function AccountPage() {
   return (
@@ -50,7 +50,7 @@ async function Account() {
 
       <div className="flex flex-col gap-6 w-full">
         <h2 className="text-2xl font-semibold">Your Workouts</h2>
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
           <YourWorkouts session={session} />
         </Suspense>
       </div>

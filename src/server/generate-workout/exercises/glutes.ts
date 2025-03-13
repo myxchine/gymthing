@@ -54,20 +54,6 @@ export const gluteExercises: Exercise[] = [
     unilateral: false,
   },
   {
-    id: "step-up",
-    name: "Step-Up",
-    description:
-      "A unilateral movement where you step onto an elevated surface to engage the legs and glutes.",
-    muscleGroups: ["quadriceps", "hamstrings", "glutes"],
-    difficulty: "beginner",
-    equipment: ["dumbbells", "bodyweight"],
-    can_train_at_home: true,
-    bodyweight: true,
-    compound: true,
-    unilateral: true,
-    importance: 0.1,
-  },
-  {
     id: "bulgarian-split-squat",
     name: "Bulgarian Split Squat",
     description:

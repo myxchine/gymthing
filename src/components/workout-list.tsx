@@ -37,9 +37,9 @@ export function WorkoutListSkeleton({numberOfWorkouts}: {numberOfWorkouts: numbe
           key={index}
           className="flex flex-col gap-2 w-full"
         >
-          <h2 className="text-lg font-semibold tracking-tight h-[28px] w-[200px] animate-pulse bg-black/10 rounded" />
-          <p className="h-[24px] w-[100px] animate-pulse bg-black/10 rounded"/>
-          <p className="text-black/60 text-sm line-clamp-2 w-[80%] h-[40px] animate-pulse bg-black/10 rounded" />
+          <h2 className="text-lg font-semibold tracking-tight h-[28px] w-[200px] animate-pulse bg-black/10 rounded-full" />
+          <p className="h-[24px] w-[100px] animate-pulse bg-black/10 rounded-full"/>
+          <p className="text-black/60 text-sm line-clamp-2 w-[80%] h-[40px] animate-pulse bg-black/10 rounded-full" />
           <span className="px-4 py-2 rounded-full text-sm mt-2 w-fit border border-black/30 bg-black/10 animate-pulse text-black/30">
             View workout
           </span>
