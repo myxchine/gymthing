@@ -1,7 +1,6 @@
-import { getworkouts } from "@/server/db/utils";
 import { Suspense } from "react";
-import WorkoutList from "@/components/workout-list";
 import { WorkoutListSkeleton } from "@/components/workout-list";
+import Workouts from "./workouts";
 
 export default function WorkoutPage() {
   return (
@@ -15,12 +14,8 @@ export default function WorkoutPage() {
         </p>
       </div>
       <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
-        <Workout />
+        <Workouts />
       </Suspense>
     </div>
   );
-}
-async function Workout() {
-  const workouts = await getworkouts();
-  return <WorkoutList workouts={workouts} />;
 }
