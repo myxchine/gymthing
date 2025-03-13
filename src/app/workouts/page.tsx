@@ -1,4 +1,9 @@
-import Workouts from "./workouts";
+import { getworkouts } from "@/server/db/utils";
+import WorkoutList from "@/components/workout-list";
+import { Suspense } from "react";
+import { WorkoutListSkeleton } from "@/components/workout-list";
+
+export const dynamic = "force-dynamic";
 
 export default function WorkoutPage() {
   return (
@@ -11,7 +16,14 @@ export default function WorkoutPage() {
           Workouts created by you and others can be found here.
         </p>
       </div>
-      <Workouts />
+      <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
+        <Workouts />
+      </Suspense>
     </div>
   );
+}
+
+async function Workouts() {
+  const workouts = await getworkouts();
+  return <WorkoutList workouts={workouts} />;
 }
