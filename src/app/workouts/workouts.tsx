@@ -5,7 +5,7 @@ import { WorkoutListSkeleton } from "@/components/workout-list";
 
 export const dynamic = "force-dynamic";
 
-export default function WorkoutsComponent() {
+export default async function WorkoutsComponent() {
   return (
     <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
       <Workouts />
