@@ -29,6 +29,26 @@ export default async function WorkoutList({
   );
 }
 
+export function WorkoutListSkeleton({numberOfWorkouts}: {numberOfWorkouts: number}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full md:my-4 md:gap-12">
+      {[...Array(numberOfWorkouts)].map((_, index) => (
+        <div
+          key={index}
+          className="flex flex-col gap-2 w-full"
+        >
+          <h2 className="text-lg font-semibold tracking-tight h-[28px] w-[200px] animate-pulse bg-black/10 rounded" />
+          <p className="h-[24px] w-[100px] animate-pulse bg-black/10 rounded"/>
+          <p className="text-black/60 text-sm line-clamp-2 w-[80%] h-[40px] animate-pulse bg-black/10 rounded" />
+          <span className="px-4 py-2 rounded-full text-sm mt-2 w-fit border border-black/30 bg-black/10 animate-pulse text-black/30">
+            View workout
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CalculateTimeAgo(date: Date): string {
   const today = new Date();
   const seconds = Math.floor((today.getTime() - date.getTime()) / 1000);

@@ -3,18 +3,10 @@ import Link from "next/link";
 import { Loading } from "@/components/loading";
 import { Suspense } from "react";
 import WorkoutList from "@/components/workout-list";
-
+import { WorkoutListSkeleton } from "@/components/workout-list";
 export const dynamic = "force-dynamic";
 
 export default function WorkoutPage() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <Workout />
-    </Suspense>
-  );
-}
-async function Workout() {
-  const workouts = await getworkouts();
   return (
     <div className=" p-6 w-full flex flex-col gap-6 md:mt-8 mb-24">
       <div className="flex flex-col gap-3 w-full">
@@ -25,7 +17,13 @@ async function Workout() {
           Workouts created by you and others can be found here.
         </p>
       </div>
-      <WorkoutList workouts={workouts} />
+      <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
+        <Workout />
+      </Suspense>
     </div>
   );
+}
+async function Workout() {
+  const workouts = await getworkouts();
+  return <WorkoutList workouts={workouts} />;
 }

@@ -1,0 +1,7 @@
+curl -s --compressed "https://api.search.brave.com/res/v1/suggest/search?q=hello&country=US&count=5" \
+  -H "Accept: application/json" \
+  -H "Accept-Encoding: gzip" \
+  -H "X-Subscription-Token: <BSAvuk8P2gxACQr2q17xWnjktAeSSJX>"curl -s --compressed "https://api.search.brave.com/res/v1/suggest/search?q=hello&country=US&count=5" \
+  -H "Accept: application/json" \
+  -H "Accept-Encoding: gzip" \
+  -H "X-Subscription-Token: <BSAvuk8P2gxACQr2q17xWnjktAeSSJX>"

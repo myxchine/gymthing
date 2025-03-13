@@ -6,7 +6,7 @@ import { generateUserWorkout } from "@/server/generate-workout/utils";
 import { Loading } from "@/components/loading";
 import { useRouter } from "next/navigation";
 import { RegenerateIcon } from "@/components/ui/icons";
-import { workout, workoutWithuserName } from "@/server/db/schema";
+import { workout } from "@/server/db/schema";
 export default function WorkoutComponent({
   workoutData,
 }: {
@@ -46,21 +46,17 @@ export default function WorkoutComponent({
   };
 
   if (isRegenerating) {
-    return (
-      <div className="max-w-2xl mx-auto p-4 pb-0 w-full flex flex-col items-center justify-center gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))]">
-        {message ? (
-          <p className="w-full text-center text-sm">{message}</p>
-        ) : (
-          <Loading />
-        )}
-      </div>
-    );
+    return <Loading />;
   }
 
   const mainWokrout = sortExercises(workout.main);
   return (
     <div className=" p-6 w-full flex flex-col md:flex-row  gap-8 mb-24 md:mt-8 md:gap-12">
       <div className="flex flex-col gap-4 w-full md:w-[600px] md:sticky md:top-[calc(var(--header-height-desktop)+3.5rem)] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
+        {message && (
+          <p className="text-center text-sm text-red-600">{message}</p>
+        )}
+
         <div className="flex flex-col gap-1 w-full">
           <h1 className="text-3xl font-semibold tracking-tight">
             {workout.name}
@@ -69,7 +65,7 @@ export default function WorkoutComponent({
         </div>
 
         <div className="flex flex-wrap gap-2 items-center justify-start">
-          <p     className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
+          <p className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
             {workout.workoutLength === "shortlength"
               ? "20 - 30"
               : workout.workoutLength === "mediumlength"
@@ -77,10 +73,10 @@ export default function WorkoutComponent({
               : "60 - 70"}{" "}
             minutes
           </p>
-          <p     className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
+          <p className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
             <span className="capitalize">{workout.place}</span> workout
           </p>
-          <p     className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
+          <p className="px-3 py-1 rounded-full bg-black/5 text-xs text-black/60  w-fit">
             Created {CalculateTimeAgo(new Date(workoutData.createdAt))}
           </p>
         </div>

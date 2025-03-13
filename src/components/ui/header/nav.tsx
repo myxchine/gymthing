@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navigation = [
-  { name: "Generate Workout", href: "/" },
+  { name: "Workout Generator", href: "/" },
   { name: "Explore Workouts", href: "/workouts" },
 ];
 
