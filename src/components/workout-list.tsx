@@ -40,7 +40,7 @@ export function WorkoutListSkeleton({numberOfWorkouts}: {numberOfWorkouts: numbe
           <h2 className="text-lg font-semibold tracking-tight h-[28px] w-[200px] animate-pulse bg-black/10 rounded-full" />
           <p className="h-[24px] w-[100px] animate-pulse bg-black/10 rounded-full"/>
           <p className="text-black/60 text-sm line-clamp-2 w-[80%] h-[40px] animate-pulse bg-black/10 rounded-full" />
-          <span className="px-4 py-2 rounded-full text-sm mt-2 w-fit border border-black/30 bg-black/10 animate-pulse text-black/30">
+          <span className="px-4 py-2 rounded-full text-sm mt-2 w-fit border border-black/20 bg-black/10 animate-pulse text-black/20">
             View workout
           </span>
         </div>
