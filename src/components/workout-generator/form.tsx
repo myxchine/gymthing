@@ -136,7 +136,7 @@ export default function PersonalWorkoutRoutineForm() {
   return (
     <div className="max-w-6xl mx-auto  w-full flex flex-col items-center justify-start gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
       {!isPending && !message && (
-        <div className="flex flex-col gap-3 md:gap-5 w-full h-full items-center justify-center text-center  overflow-hidden max-w-xl mx-auto">
+        <div className="flex flex-col gap-4 md:gap-6 w-full h-full items-center justify-center text-center  overflow-hidden max-w-xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             Workout Generator
           </h1>
