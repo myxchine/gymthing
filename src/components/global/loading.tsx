@@ -1,4 +1,4 @@
-import { SpinnerIcon } from "./ui/icons";
+import { SpinnerIcon } from "./icons";
 
 export function Loading() {
   return (

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MenuIcon, CloseIcon } from "@/components/ui/icons";
-import Logo from "@/components/ui/logo";
+import { MenuIcon, CloseIcon } from "@/components/global/icons";
+import Logo from "@/components/global/logo";
 import { usePathname } from "next/navigation";
 import AccountButton from "./account-button";
 export default function MobileMenu() {
@@ -24,11 +24,11 @@ export default function MobileMenu() {
   }, [isOpen]);
 
   return (
-    <div className={`w-full block md:hidden py-[2px] `}>
+    <div className={`w-full block md:hidden  `}>
       <div className={`flex flex-row items-center justify-between w-full   `}>
         <Buttons open={isOpen} setIsOpen={setIsOpen} />
         <Logo />
-        <div className="w-1/3  flex-col justify-end items-end flex ml-2">
+        <div className="w-1/3  flex-col justify-end items-end flex ">
           <AccountButton />
         </div>
       </div>

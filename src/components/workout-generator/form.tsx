@@ -1,10 +1,11 @@
 "use client";
 
-import { Loading } from "@/components/loading";
+import { Loading } from "@/components/global/loading";
 import { generateUserWorkout } from "@/server/generate-workout/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import MarqueePrompts from "./marquee";
+import { toast } from "sonner";
 
 const fitnessGoalOptions: FitnessGoal[] = [
   `Improve General Fitness & Health`,
@@ -80,20 +81,26 @@ export default function PersonalWorkoutRoutineForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsPending(true);
-    setMessage(null);
+
+    if (!formData.query) {
+      toast.error("Please enter a query");
+      return;
+    }
 
     if (
       !formData.fitnessGoal ||
       !formData.fitnessLevel ||
       !formData.workoutLength ||
-      !formData.place ||
-      !formData.query
+      !formData.place
     ) {
-      throw new Error(
-        "Failed to create your workout routine, please try again"
-      );
+      toast.error("Failed to create your workout routine, please try again");
+      return;
     }
+
+    setIsPending(true);
+    setMessage(null);
+
+    toast("Generating your workout...");
 
     try {
       const result = await generateUserWorkout({
@@ -130,7 +137,7 @@ export default function PersonalWorkoutRoutineForm() {
     <div className="max-w-6xl mx-auto  w-full flex flex-col items-center justify-start gap-6 h-[calc(100svh-var(--header-height)-var(--footer-height))] md:h-[calc(100svh-var(--header-height-desktop)-var(--footer-height))]">
       {!isPending && !message && (
         <div className="flex flex-col gap-3 md:gap-5 w-full h-full items-center justify-center text-center  overflow-hidden max-w-xl mx-auto">
-          <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             Workout Generator
           </h1>
           <p className=" text-sm pb-4 md:text-base">
@@ -180,7 +187,6 @@ export default function PersonalWorkoutRoutineForm() {
               id="query"
               placeholder="What you want to focus on today?"
               className=" h-[60px] min-h-[60px] max-h-[60px] focus:outline-none my-1 resize-none"
-              required
               value={formData.query}
               onChange={handleChange}
             />
@@ -191,7 +197,7 @@ export default function PersonalWorkoutRoutineForm() {
                 id="fitnessGoal"
                 value={formData.fitnessGoal}
                 onChange={handleChange}
-                className="max-w-full  !text-center md:w-fit md:max-w-fit"
+                className="max-w-full  !text-center md:w-fit md:max-w-fit hidden"
                 style={{
                   whiteSpace: "nowrap",
                   overflow: "hidden",
@@ -243,7 +249,7 @@ export default function PersonalWorkoutRoutineForm() {
                 id="place"
                 value={formData.place}
                 onChange={handleChange}
-                className="capitalize w-fit max-w-fit "
+                className=" w-fit max-w-fit "
               >
                 {placeOptions.map((place) => (
                   <option

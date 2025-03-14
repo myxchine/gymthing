@@ -1,11 +1,11 @@
 "use client";
 
-import ExerciseCard from "@/components/exercise-card";
+import ExerciseCard from "@/components/workout-generator/exercise-card";
 import { useState } from "react";
 import { generateUserWorkout } from "@/server/generate-workout/utils";
-import { Loading } from "@/components/loading";
+import { Loading } from "@/components/global/loading";
 import { useRouter } from "next/navigation";
-import { RegenerateIcon } from "@/components/ui/icons";
+import { RegenerateIcon } from "@/components/global/icons";
 import { workout } from "@/server/db/schema";
 export default function WorkoutComponent({
   workoutData,
@@ -58,9 +58,7 @@ export default function WorkoutComponent({
         )}
 
         <div className="flex flex-col gap-1 w-full">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {workout.name}
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">{workout.name}</h1>
           <p className="text-black/60 text-sm">{workout.description}</p>
         </div>
 

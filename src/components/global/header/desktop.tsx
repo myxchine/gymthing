@@ -1,5 +1,5 @@
 import Nav from "./nav";
-import Logo from "@/components/ui/logo";
+import Logo from "@/components/global/logo";
 import AccountButton from "./account-button";
 
 export default function Menu() {

@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "next-auth/react";
-import { GoogleIcon } from "@/components/ui/icons";
+import { GoogleIcon } from "@/components/global/icons";
 export default function SignInPage() {
   return (
     <button

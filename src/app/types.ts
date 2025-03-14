@@ -123,3 +123,16 @@ interface FocusAreaExercises {
   exercises: Exercise[];
   importance: number;
 }
+
+interface CalculatorParams {
+  exercise: string | null;
+  weight: number | null;
+  age: number | null;
+  gender: string | null;
+  time: number | null;
+}
+interface CaloriesBurnedExercise {
+  label: string;
+  value: string;
+  METS: number;
+}

@@ -1,12 +1,14 @@
 import SignOut from "./signout";
 import { redirect } from "next/navigation";
-import { UserIcon } from "@/components/ui/icons";
+import { UserIcon } from "@/components/global/icons";
 import Link from "next/link";
 import { getworkoutsByuser } from "@/server/db/utils";
-import { Loading } from "@/components/loading";
+import { Loading } from "@/components/global/loading";
 import { getServerAuthSession } from "@/server/auth";
 import { Suspense } from "react";
-import WorkoutList, { WorkoutListSkeleton } from "@/components/workout-list";
+import WorkoutList, {
+  WorkoutListSkeleton,
+} from "@/components/workout-generator/workout-list";
 
 export default function AccountPage() {
   return (
@@ -48,8 +50,8 @@ async function Account() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 w-full">
-        <h2 className="text-2xl font-semibold">Your Workouts</h2>
+      <div className="flex flex-col gap-4 w-full">
+        <h2 className="text-2xl font-bold">Your Workouts</h2>
         <Suspense fallback={<WorkoutListSkeleton numberOfWorkouts={10} />}>
           <YourWorkouts session={session} />
         </Suspense>

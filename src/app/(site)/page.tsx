@@ -1,4 +1,4 @@
-import PersonalWorkoutRoutineForm from "./generate-workout-form";
+import PersonalWorkoutRoutineForm from "@/components/workout-generator/form";
 
 export const dynamic = "force-static";
 export default function Home() {
